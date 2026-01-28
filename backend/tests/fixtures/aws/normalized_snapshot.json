@@ -1,0 +1,79 @@
+{
+  "account_id": "111122223333",
+  "region": "ap-south-1",
+  "collected_at": "2026-01-01T00:00:00+00:00",
+  "assets": [
+    {
+      "asset_id": "ingressa-public-bucket",
+      "asset_type": "s3",
+      "region": "ap-south-1",
+      "name": "ingressa-public-bucket",
+      "data": {
+        "public_access_block": false,
+        "encryption": "NONE",
+        "versioning": false
+      }
+    },
+    {
+      "asset_id": "ingressa-secure-bucket",
+      "asset_type": "s3",
+      "region": "ap-south-1",
+      "name": "ingressa-secure-bucket",
+      "data": {
+        "public_access_block": true,
+        "encryption": "SSE-S3",
+        "versioning": true
+      }
+    },
+    {
+      "asset_id": "sg-001",
+      "asset_type": "security_group",
+      "region": "ap-south-1",
+      "name": "open-ssh",
+      "data": {
+        "inbound_rules": [
+          { "port": 22, "protocol": "tcp", "cidr": "0.0.0.0/0" }
+        ]
+      }
+    },
+    {
+      "asset_id": "legacy-admin",
+      "asset_type": "iam_user",
+      "region": "ap-south-1",
+      "name": "legacy-admin",
+      "data": {
+        "mfa_enabled": false,
+        "access_keys": [
+          { "id": "AKIAOLDKEY1", "active": true, "age_days": 120 }
+        ]
+      }
+    },
+    {
+      "asset_id": "secure-user",
+      "asset_type": "iam_user",
+      "region": "ap-south-1",
+      "name": "secure-user",
+      "data": {
+      "mfa_enabled": true,
+      "access_keys": [
+      { "id": "AKIANEWKEY1", "active": true, "age_days": 10 }
+     ]
+     }
+    },
+    {
+      "asset_id": "i-0badinstance0001",
+      "asset_type": "ec2",
+      "region": "ap-south-1",
+      "name": "i-0badinstance0001",
+      "data": {
+        "public_ip": "13.232.1.10",
+        "metadata_options": {
+          "http_tokens": "optional"
+        }
+      }
+    }
+  ],
+  "raw": {
+    "cloudtrail": { "enabled": false }
+  }
+}

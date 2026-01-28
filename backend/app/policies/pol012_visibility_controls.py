@@ -53,7 +53,7 @@ class POL012VisibilityControls(BasePolicy):
                         resource_type="ec2",
                         region=node.region,
                         evidence={"instance_id": node.asset_id, "http_tokens": http_tokens},
-                        asset_key=k,
+                        asset_key=f"cloudtrail:cloudtrail:{snap.account_id}:{snap.region}",
                     )
                 )
 

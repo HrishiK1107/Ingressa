@@ -1,8 +1,9 @@
 import logging
 from contextvars import ContextVar
+from typing import Optional
 
 # Stores scan_id per request/task safely
-scan_id_ctx: ContextVar[str | None] = ContextVar("scan_id", default=None)
+scan_id_ctx: ContextVar[Optional[str]] = ContextVar("scan_id", default=None)
 
 
 class ScanIdFilter(logging.Filter):

@@ -1,3 +1,5 @@
+from typing import Optional
+
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -21,12 +23,12 @@ class Settings(BaseSettings):
     AWS_AUTH_MODE: str = "keys"  # keys | assume_role
 
     # keys mode
-    AWS_ACCESS_KEY_ID: str | None = None
-    AWS_SECRET_ACCESS_KEY: str | None = None
-    AWS_SESSION_TOKEN: str | None = None
+    AWS_ACCESS_KEY_ID: Optional[str] = None
+    AWS_SECRET_ACCESS_KEY: Optional[str] = None
+    AWS_SESSION_TOKEN: Optional[str] = None
 
     # assume role mode
-    AWS_ASSUME_ROLE_ARN: str | None = None
+    AWS_ASSUME_ROLE_ARN: Optional[str] = None
 
 
 settings = Settings()

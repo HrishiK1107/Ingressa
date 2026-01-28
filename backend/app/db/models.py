@@ -17,7 +17,7 @@ class ScanRun(Base):
     scan_id: Mapped[str] = mapped_column(String(64), unique=True, index=True)
 
     mode: Mapped[str] = mapped_column(String(16))  # mock | aws
-    status: Mapped[str] = mapped_column(String(16))  # running | completed | failed
+    status: Mapped[str] = mapped_column(String(16))  # RUNNING | SUCCESS | FAILED
 
     started_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
     finished_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
@@ -32,6 +32,7 @@ class Asset(Base):
     __tablename__ = "assets"
 
     id: Mapped[int] = mapped_column(primary_key=True)
+
     asset_id: Mapped[str] = mapped_column(String(128), index=True)
     asset_type: Mapped[str] = mapped_column(String(64))
     region: Mapped[str] = mapped_column(String(32))
@@ -55,6 +56,11 @@ class Finding(Base):
     risk_score: Mapped[int]
 
     status: Mapped[str] = mapped_column(String(16))  # OPEN/RESOLVED
+
+    # ✅ canonical resource binding (needed for UI + reconciliation key)
+    resource_id: Mapped[str] = mapped_column(String(256), index=True)
+    resource_type: Mapped[str] = mapped_column(String(64), index=True)
+    region: Mapped[str] = mapped_column(String(32), index=True)
 
     asset_id_fk: Mapped[int] = mapped_column(ForeignKey("assets.id"))
     scan_run_id: Mapped[int] = mapped_column(ForeignKey("scan_runs.id"))
@@ -83,5 +89,8 @@ class FindingEvent(Base):
     message: Mapped[str]
 
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+
+    # optional evidence snapshot (helps timeline later)
+    snapshot: Mapped[Optional[dict]] = mapped_column(JSON, nullable=True)
 
     finding = relationship("Finding", back_populates="events")

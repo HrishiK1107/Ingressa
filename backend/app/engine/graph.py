@@ -56,6 +56,39 @@ class AssetGraph:
             "edges": sum(len(v) for v in self.edges_out.values()),
         }
 
+    # =========================
+    # NEW METHODS (ADDED)
+    # =========================
+
+    def get_asset_by_id(self, asset_type: str, asset_id: str, region: str) -> Optional[AssetNode]:
+        k = self.key(asset_type, asset_id, region)
+        return self.nodes.get(k)
+
+    def neighbors(self, asset_key: str, relation: Optional[str] = None) -> List[str]:
+        """
+        Outgoing neighbors from this node.
+        If relation provided -> filter edges by relation.
+        Returns list of dst node keys.
+        """
+        out = []
+        for e in self.edges_out.get(asset_key, []):
+            if relation and e.relation != relation:
+                continue
+            out.append(e.dst)
+        return out
+
+    def neighbors_in(self, asset_key: str, relation: Optional[str] = None) -> List[str]:
+        """
+        Incoming neighbors into this node.
+        Returns list of src node keys.
+        """
+        inc = []
+        for e in self.edges_in.get(asset_key, []):
+            if relation and e.relation != relation:
+                continue
+            inc.append(e.src)
+        return inc
+
 
 class GraphBuilder:
     """

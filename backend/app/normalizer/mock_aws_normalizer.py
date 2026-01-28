@@ -12,7 +12,9 @@ class MockAWSNormalizer(BaseNormalizer):
         resources: Dict[str, Any] = collected.resources
         assets: List[NormalizedAsset] = []
 
+        # -------------------------
         # S3 buckets
+        # -------------------------
         for b in resources.get("s3_buckets", []):
             assets.append(
                 NormalizedAsset(
@@ -24,11 +26,17 @@ class MockAWSNormalizer(BaseNormalizer):
                         "public_access_block": b.get("public_access_block", True),
                         "encryption": b.get("encryption", "UNKNOWN"),
                         "versioning": b.get("versioning", False),
+                        "acl": b.get(
+                            "acl",
+                            {"public_read": False, "public_write": False},
+                        ),
                     },
                 )
             )
 
+        # -------------------------
         # Security groups
+        # -------------------------
         for sg in resources.get("security_groups", []):
             assets.append(
                 NormalizedAsset(
@@ -42,7 +50,9 @@ class MockAWSNormalizer(BaseNormalizer):
                 )
             )
 
+        # -------------------------
         # IAM users
+        # -------------------------
         for u in resources.get("iam_users", []):
             assets.append(
                 NormalizedAsset(
@@ -51,13 +61,18 @@ class MockAWSNormalizer(BaseNormalizer):
                     region=collected.region,
                     name=u["user_name"],
                     data={
+                        "is_admin": u.get("is_admin", False),
                         "mfa_enabled": u.get("mfa_enabled", False),
                         "access_keys": u.get("access_keys", []),
+                        "attached_policies": u.get("attached_policies", []),
+                        "permissions": u.get("permissions", {"actions": []}),
                     },
                 )
             )
 
+        # -------------------------
         # EC2 instances
+        # -------------------------
         for i in resources.get("ec2_instances", []):
             assets.append(
                 NormalizedAsset(
@@ -67,14 +82,19 @@ class MockAWSNormalizer(BaseNormalizer):
                     name=i["instance_id"],
                     data={
                         "public_ip": i.get("public_ip"),
+                        "security_groups": i.get("security_groups", []),
+                        "iam_role": i.get("iam_role"),
                         "metadata_options": i.get("metadata_options", {}),
                     },
                 )
             )
 
-        # raw preservation
+        # -------------------------
+        # raw preservation (for policies)
+        # -------------------------
         raw = {
             "cloudtrail": resources.get("cloudtrail", {}),
+            "iam_roles": resources.get("iam_roles", []),
         }
 
         return NormalizedSnapshot(

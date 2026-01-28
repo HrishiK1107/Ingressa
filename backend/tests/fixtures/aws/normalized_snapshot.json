@@ -4,29 +4,52 @@
   "collected_at": "2026-01-01T00:00:00+00:00",
   "assets": [
     {
-      "asset_id": "ingressa-public-bucket",
+      "asset_id": "ingressa-public-read-bucket",
       "asset_type": "s3",
       "region": "ap-south-1",
-      "name": "ingressa-public-bucket",
+      "name": "ingressa-public-read-bucket",
       "data": {
         "public_access_block": false,
         "encryption": "NONE",
-        "versioning": false
+        "versioning": false,
+        "acl": {
+          "public_read": true,
+          "public_write": false
+        }
       }
     },
     {
-      "asset_id": "ingressa-secure-bucket",
+      "asset_id": "ingressa-public-write-bucket",
       "asset_type": "s3",
       "region": "ap-south-1",
-      "name": "ingressa-secure-bucket",
+      "name": "ingressa-public-write-bucket",
       "data": {
-        "public_access_block": true,
-        "encryption": "SSE-S3",
-        "versioning": true
+        "public_access_block": false,
+        "encryption": "NONE",
+        "versioning": false,
+        "acl": {
+          "public_read": true,
+          "public_write": true
+        }
       }
     },
     {
-      "asset_id": "sg-001",
+      "asset_id": "ingressa-misconfig-bucket",
+      "asset_type": "s3",
+      "region": "ap-south-1",
+      "name": "ingressa-misconfig-bucket",
+      "data": {
+        "public_access_block": true,
+        "encryption": "NONE",
+        "versioning": true,
+        "acl": {
+          "public_read": false,
+          "public_write": false
+        }
+      }
+    },
+    {
+      "asset_id": "sg-ssh-open",
       "asset_type": "security_group",
       "region": "ap-south-1",
       "name": "open-ssh",
@@ -37,43 +60,144 @@
       }
     },
     {
+      "asset_id": "sg-rdp-open",
+      "asset_type": "security_group",
+      "region": "ap-south-1",
+      "name": "open-rdp",
+      "data": {
+        "inbound_rules": [
+          { "port": 3389, "protocol": "tcp", "cidr": "0.0.0.0/0" }
+        ]
+      }
+    },
+    {
+      "asset_id": "sg-dangerous-ports",
+      "asset_type": "security_group",
+      "region": "ap-south-1",
+      "name": "dangerous-ports",
+      "data": {
+        "inbound_rules": [
+          { "port": 445, "protocol": "tcp", "cidr": "0.0.0.0/0" },
+          { "port": 1433, "protocol": "tcp", "cidr": "0.0.0.0/0" }
+        ]
+      }
+    },
+    {
+      "asset_id": "sg-all-traffic",
+      "asset_type": "security_group",
+      "region": "ap-south-1",
+      "name": "all-traffic-open",
+      "data": {
+        "inbound_rules": [
+          { "port": "ALL", "protocol": "-1", "cidr": "0.0.0.0/0" }
+        ]
+      }
+    },
+    {
       "asset_id": "legacy-admin",
       "asset_type": "iam_user",
       "region": "ap-south-1",
       "name": "legacy-admin",
       "data": {
+        "is_admin": true,
         "mfa_enabled": false,
         "access_keys": [
           { "id": "AKIAOLDKEY1", "active": true, "age_days": 120 }
-        ]
+        ],
+        "attached_policies": [
+          {
+            "name": "AdministratorAccess",
+            "statements": [
+              { "effect": "Allow", "actions": ["*"], "resources": ["*"] }
+            ]
+          }
+        ],
+        "permissions": {
+          "actions": ["iam:PassRole", "iam:CreateAccessKey", "sts:AssumeRole"]
+        }
       }
     },
     {
-      "asset_id": "secure-user",
+      "asset_id": "developer-user",
       "asset_type": "iam_user",
       "region": "ap-south-1",
-      "name": "secure-user",
+      "name": "developer-user",
       "data": {
-      "mfa_enabled": true,
-      "access_keys": [
-      { "id": "AKIANEWKEY1", "active": true, "age_days": 10 }
-     ]
-     }
+        "is_admin": false,
+        "mfa_enabled": true,
+        "access_keys": [
+          { "id": "AKIANEWKEY1", "active": true, "age_days": 10 }
+        ],
+        "attached_policies": [
+          {
+            "name": "S3ReadOnly",
+            "statements": [
+              { "effect": "Allow", "actions": ["s3:GetObject"], "resources": ["*"] }
+            ]
+          }
+        ],
+        "permissions": {
+          "actions": ["s3:GetObject"]
+        }
+      }
     },
     {
-      "asset_id": "i-0badinstance0001",
+      "asset_id": "i-ssh-public-0001",
       "asset_type": "ec2",
       "region": "ap-south-1",
-      "name": "i-0badinstance0001",
+      "name": "i-ssh-public-0001",
       "data": {
         "public_ip": "13.232.1.10",
-        "metadata_options": {
-          "http_tokens": "optional"
-        }
+        "security_groups": ["sg-ssh-open"],
+        "iam_role": "WebRole",
+        "metadata_options": { "http_tokens": "optional" }
+      }
+    },
+    {
+      "asset_id": "i-rdp-public-0002",
+      "asset_type": "ec2",
+      "region": "ap-south-1",
+      "name": "i-rdp-public-0002",
+      "data": {
+        "public_ip": "3.111.5.12",
+        "security_groups": ["sg-rdp-open"],
+        "iam_role": "AdminRole",
+        "metadata_options": { "http_tokens": "required" }
       }
     }
   ],
   "raw": {
-    "cloudtrail": { "enabled": false }
+    "cloudtrail": {
+      "enabled": false,
+      "multi_region": false
+    },
+    "iam_roles": [
+      {
+        "role_name": "AdminRole",
+        "attached_policies": [
+          {
+            "name": "WildcardPolicy",
+            "statements": [
+              { "effect": "Allow", "actions": ["iam:*"], "resources": ["*"] }
+            ]
+          }
+        ],
+        "permissions": {
+          "actions": ["iam:PassRole", "ec2:RunInstances"]
+        }
+      },
+      {
+        "role_name": "WebRole",
+        "attached_policies": [
+          {
+            "name": "MinimalPolicy",
+            "statements": [
+              { "effect": "Allow", "actions": ["logs:CreateLogStream"], "resources": ["*"] }
+            ]
+          }
+        ],
+        "permissions": { "actions": [] }
+      }
+    ]
   }
 }

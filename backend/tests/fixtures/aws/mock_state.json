@@ -5,54 +5,162 @@
   "resources": {
     "s3_buckets": [
       {
-        "name": "ingressa-public-bucket",
+        "name": "ingressa-public-read-bucket",
         "public_access_block": false,
         "encryption": "NONE",
-        "versioning": false
+        "versioning": false,
+        "acl": {
+          "public_read": true,
+          "public_write": false
+        }
       },
       {
-        "name": "ingressa-secure-bucket",
+        "name": "ingressa-public-write-bucket",
+        "public_access_block": false,
+        "encryption": "NONE",
+        "versioning": false,
+        "acl": {
+          "public_read": true,
+          "public_write": true
+        }
+      },
+      {
+        "name": "ingressa-misconfig-bucket",
         "public_access_block": true,
-        "encryption": "SSE-S3",
-        "versioning": true
+        "encryption": "NONE",
+        "versioning": true,
+        "acl": {
+          "public_read": false,
+          "public_write": false
+        }
       }
     ],
     "security_groups": [
       {
-        "group_id": "sg-001",
+        "group_id": "sg-ssh-open",
         "name": "open-ssh",
         "inbound_rules": [
           { "port": 22, "protocol": "tcp", "cidr": "0.0.0.0/0" }
         ]
+      },
+      {
+        "group_id": "sg-rdp-open",
+        "name": "open-rdp",
+        "inbound_rules": [
+          { "port": 3389, "protocol": "tcp", "cidr": "0.0.0.0/0" }
+        ]
+      },
+      {
+        "group_id": "sg-dangerous-ports",
+        "name": "dangerous-ports",
+        "inbound_rules": [
+          { "port": 445, "protocol": "tcp", "cidr": "0.0.0.0/0" },
+          { "port": 1433, "protocol": "tcp", "cidr": "0.0.0.0/0" }
+        ]
+      },
+      {
+        "group_id": "sg-all-traffic",
+        "name": "all-traffic-open",
+        "inbound_rules": [
+          { "port": "ALL", "protocol": "-1", "cidr": "0.0.0.0/0" }
+        ]
+      }
+    ],
+    "ec2_instances": [
+      {
+        "instance_id": "i-ssh-public-0001",
+        "public_ip": "13.232.1.10",
+        "security_groups": ["sg-ssh-open"],
+        "iam_role": "WebRole",
+        "metadata_options": {
+          "http_tokens": "optional"
+        }
+      },
+      {
+        "instance_id": "i-rdp-public-0002",
+        "public_ip": "3.111.5.12",
+        "security_groups": ["sg-rdp-open"],
+        "iam_role": "AdminRole",
+        "metadata_options": {
+          "http_tokens": "required"
+        }
       }
     ],
     "iam_users": [
       {
         "user_name": "legacy-admin",
+        "is_admin": true,
+        "mfa_enabled": false,
         "access_keys": [
           { "id": "AKIAOLDKEY1", "active": true, "age_days": 120 }
         ],
-        "mfa_enabled": false
+        "attached_policies": [
+          {
+            "name": "AdministratorAccess",
+            "statements": [
+              { "effect": "Allow", "actions": ["*"], "resources": ["*"] }
+            ]
+          }
+        ],
+        "permissions": {
+          "actions": [
+            "iam:PassRole",
+            "iam:CreateAccessKey",
+            "sts:AssumeRole"
+          ]
+        }
       },
       {
-        "user_name": "secure-user",
+        "user_name": "developer-user",
+        "is_admin": false,
+        "mfa_enabled": true,
         "access_keys": [
           { "id": "AKIANEWKEY1", "active": true, "age_days": 10 }
         ],
-        "mfa_enabled": true
+        "attached_policies": [
+          {
+            "name": "S3ReadOnly",
+            "statements": [
+              { "effect": "Allow", "actions": ["s3:GetObject"], "resources": ["*"] }
+            ]
+          }
+        ],
+        "permissions": {
+          "actions": ["s3:GetObject"]
+        }
+      }
+    ],
+    "iam_roles": [
+      {
+        "role_name": "AdminRole",
+        "attached_policies": [
+          {
+            "name": "WildcardPolicy",
+            "statements": [
+              { "effect": "Allow", "actions": ["iam:*"], "resources": ["*"] }
+            ]
+          }
+        ],
+        "permissions": {
+          "actions": ["iam:PassRole", "ec2:RunInstances"]
+        }
+      },
+      {
+        "role_name": "WebRole",
+        "attached_policies": [
+          {
+            "name": "MinimalPolicy",
+            "statements": [
+              { "effect": "Allow", "actions": ["logs:CreateLogStream"], "resources": ["*"] }
+            ]
+          }
+        ],
+        "permissions": { "actions": [] }
       }
     ],
     "cloudtrail": {
-      "enabled": false
-    },
-    "ec2_instances": [
-      {
-        "instance_id": "i-0badinstance0001",
-        "public_ip": "13.232.1.10",
-        "metadata_options": {
-          "http_tokens": "optional"
-        }
-      }
-    ]
+      "enabled": false,
+      "multi_region": false
+    }
   }
 }

@@ -12,11 +12,13 @@ def test_graph_query_helpers():
     graph = GraphBuilder().build(nodes)
 
     # get asset by id
-    s3 = graph.get_asset_by_id("s3", "ingressa-public-bucket", "ap-south-1")
+    s3 = graph.get_asset_by_id("s3", "ingressa-public-read-bucket", "ap-south-1")
     assert s3 is not None
     assert s3.asset_type == "s3"
 
     # neighbors lookup (bucket should have access_control self-edge)
-    bucket_key = graph.key("s3", "ingressa-public-bucket", "ap-south-1")
+    bucket_key = graph.key("s3", "ingressa-public-read-bucket", "ap-south-1")
     n = graph.neighbors(bucket_key, relation="access_control")
+
+    # our graph builder adds a self-edge for access_control
     assert bucket_key in n

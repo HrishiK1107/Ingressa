@@ -1,0 +1,58 @@
+{
+  "account_id": "111122223333",
+  "region": "ap-south-1",
+  "collected_at": "2026-01-01T00:00:00Z",
+  "resources": {
+    "s3_buckets": [
+      {
+        "name": "ingressa-public-bucket",
+        "public_access_block": false,
+        "encryption": "NONE",
+        "versioning": false
+      },
+      {
+        "name": "ingressa-secure-bucket",
+        "public_access_block": true,
+        "encryption": "SSE-S3",
+        "versioning": true
+      }
+    ],
+    "security_groups": [
+      {
+        "group_id": "sg-001",
+        "name": "open-ssh",
+        "inbound_rules": [
+          { "port": 22, "protocol": "tcp", "cidr": "0.0.0.0/0" }
+        ]
+      }
+    ],
+    "iam_users": [
+      {
+        "user_name": "legacy-admin",
+        "access_keys": [
+          { "id": "AKIAOLDKEY1", "active": true, "age_days": 120 }
+        ],
+        "mfa_enabled": false
+      },
+      {
+        "user_name": "secure-user",
+        "access_keys": [
+          { "id": "AKIANEWKEY1", "active": true, "age_days": 10 }
+        ],
+        "mfa_enabled": true
+      }
+    ],
+    "cloudtrail": {
+      "enabled": false
+    },
+    "ec2_instances": [
+      {
+        "instance_id": "i-0badinstance0001",
+        "public_ip": "13.232.1.10",
+        "metadata_options": {
+          "http_tokens": "optional"
+        }
+      }
+    ]
+  }
+}

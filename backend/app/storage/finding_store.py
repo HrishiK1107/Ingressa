@@ -5,6 +5,8 @@ from sqlalchemy.orm import Session
 
 from app.db.models import Finding, FindingEvent, ScanRun
 
+# ADDED IMPORTS (exactly as instructed)
+
 
 class FindingStore:
     def __init__(self, db: Session):
@@ -224,3 +226,12 @@ class FindingStore:
 
         self.db.commit()
         return count
+
+    # ADDED METHOD (exact placement as requested)
+    def list_events(self, finding_id: int) -> List[FindingEvent]:
+        return (
+            self.db.query(FindingEvent)
+            .filter(FindingEvent.finding_id == finding_id)
+            .order_by(FindingEvent.created_at.desc())
+            .all()
+        )

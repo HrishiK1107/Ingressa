@@ -3,6 +3,7 @@ import logging
 from fastapi import FastAPI
 
 from app.api.routes.assets import router as assets_router
+from app.api.routes.finding_events import router as finding_events_router
 from app.api.routes.findings import router as findings_router
 from app.api.routes.health import router as health_router
 from app.api.routes.reports import router as reports_router
@@ -23,6 +24,7 @@ app.include_router(scans_router)
 app.include_router(assets_router)
 app.include_router(findings_router)
 app.include_router(reports_router)
+app.include_router(finding_events_router)
 
 
 @app.on_event("startup")

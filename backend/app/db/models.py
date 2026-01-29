@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Optional
 
-from sqlalchemy import JSON, DateTime, ForeignKey, String
+from sqlalchemy import JSON, DateTime, ForeignKey, String, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
@@ -48,6 +48,10 @@ class Asset(Base):
 # -------------------------
 class Finding(Base):
     __tablename__ = "findings"
+
+    __table_args__ = (
+        UniqueConstraint("policy_id", "resource_id", name="uq_finding_policy_resource"),
+    )
 
     id: Mapped[int] = mapped_column(primary_key=True)
 

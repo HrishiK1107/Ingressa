@@ -5,8 +5,6 @@ from sqlalchemy.orm import Session
 
 from app.db.models import Finding, FindingEvent, ScanRun
 
-# ADDED IMPORTS (exactly as instructed)
-
 
 class FindingStore:
     def __init__(self, db: Session):
@@ -19,6 +17,20 @@ class FindingStore:
         message: str,
         snapshot: dict,
     ) -> None:
+        """
+        Adds a FindingEvent, but blocks duplicate spam by checking the latest event.
+        """
+        last = (
+            self.db.query(FindingEvent)
+            .filter(FindingEvent.finding_id == finding.id)
+            .order_by(FindingEvent.created_at.desc())
+            .first()
+        )
+
+        # idempotency guard
+        if last and last.event_type == event_type and last.message == message:
+            return
+
         ev = FindingEvent(
             finding_id=finding.id,
             event_type=event_type,
@@ -91,7 +103,10 @@ class FindingStore:
             self._add_event(
                 old,
                 event_type="RESOLVED",
-                message=f"Resolved: {old.policy_id} no longer detected on {old.resource_type}:{old.resource_id}",
+                message=(
+                    f"Resolved: {old.policy_id} no longer detected on "
+                    f"{old.resource_type}:{old.resource_id}"
+                ),
                 snapshot={
                     "policy_id": old.policy_id,
                     "resource_id": old.resource_id,
@@ -134,7 +149,10 @@ class FindingStore:
                     self._add_event(
                         existing,
                         event_type="CREATED",
-                        message=f"Created finding: {policy_id} on {existing.resource_type}:{existing.resource_id}",
+                        message=(
+                            f"Created finding: {policy_id} on "
+                            f"{existing.resource_type}:{existing.resource_id}"
+                        ),
                         snapshot={
                             "policy_id": policy_id,
                             "resource_id": resource_id,
@@ -178,7 +196,10 @@ class FindingStore:
                     self._add_event(
                         existing,
                         event_type="UPDATED",
-                        message=f"Updated finding: {policy_id} on {existing.resource_type}:{existing.resource_id}",
+                        message=(
+                            f"Updated finding: {policy_id} on "
+                            f"{existing.resource_type}:{existing.resource_id}"
+                        ),
                         snapshot={
                             "before": old_snapshot,
                             "after": new_snapshot,
@@ -209,7 +230,10 @@ class FindingStore:
                 self._add_event(
                     new_finding,
                     event_type="CREATED",
-                    message=f"Created finding: {policy_id} on {new_finding.resource_type}:{new_finding.resource_id}",
+                    message=(
+                        f"Created finding: {policy_id} on "
+                        f"{new_finding.resource_type}:{new_finding.resource_id}"
+                    ),
                     snapshot={
                         "policy_id": policy_id,
                         "resource_id": resource_id,
@@ -227,7 +251,6 @@ class FindingStore:
         self.db.commit()
         return count
 
-    # ADDED METHOD (exact placement as requested)
     def list_events(self, finding_id: int) -> List[FindingEvent]:
         return (
             self.db.query(FindingEvent)

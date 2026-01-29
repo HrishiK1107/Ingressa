@@ -143,6 +143,45 @@ class FindingStore:
 
             asset_db_id = asset_lookup[asset_key]
 
+            # ---------------------------------------------------
+            # Legacy fix (B10):
+            # If same key exists but resource_type differs, it is a
+            # corrupt legacy finding. Resolve old one and create fresh.
+            # ---------------------------------------------------
+            if existing and existing.resource_type != f["resource_type"]:
+                existing.status = "RESOLVED"
+                existing.last_seen = now
+                existing.scan_run_id = scan_run.id
+
+                self._add_event(
+                    existing,
+                    event_type="UPDATED",
+                    message=(
+                        f"Legacy finding replaced due to resource_type mismatch: "
+                        f"{policy_id} {existing.resource_type}:{existing.resource_id} -> "
+                        f"{f['resource_type']}:{resource_id}"
+                    ),
+                    snapshot={
+                        "policy_id": policy_id,
+                        "resource_id": resource_id,
+                        "before": {
+                            "resource_type": existing.resource_type,
+                            "severity": existing.severity,
+                            "risk_score": existing.risk_score,
+                            "status": existing.status,
+                        },
+                        "after": {
+                            "resource_type": f["resource_type"],
+                            "severity": f["severity"],
+                            "risk_score": int(f["risk_score"]),
+                            "status": f.get("status", "OPEN"),
+                        },
+                    },
+                )
+
+                # force re-create as new row
+                existing = None
+
             if existing:
                 # baseline event for older findings
                 if not self._has_any_event(existing.id):

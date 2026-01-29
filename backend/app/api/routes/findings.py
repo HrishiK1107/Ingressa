@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 
 from app.api.deps import get_db
 from app.db.models import Finding
+from app.engine.remediation import RemediationGenerator
 from app.schemas.findings import FindingDetailOut, FindingOut
 
 router = APIRouter(prefix="/findings", tags=["findings"])
@@ -72,6 +73,59 @@ def get_finding(finding_id: int, db: Session = Depends(get_db)):
             }
         )
 
+    remediation = (finding.remediation or "").strip()
+
+    # policy -> expected resource_type guard (prevents wrong remediation on legacy data)
+    EXPECTED_RESOURCE_TYPE = {
+        "POL-001": "ec2",
+        "POL-002": "ec2",
+        "POL-003": "security_group",
+        "POL-004": "security_group",
+        "POL-005": "s3",
+        "POL-006": "s3",
+        "POL-007": "s3",
+        "POL-008": "iam_user",
+        "POL-009": "iam_user",
+        "POL-010": None,  # may apply to user/role
+        "POL-011": None,  # may apply to user/role
+        "POL-012": "cloudtrail",
+    }
+
+    needs_upgrade = ("Console Fix:" not in remediation) or ("CLI Fix:" not in remediation)
+
+    # B10 hard requirement: remediation must be structured, readable, AND not incorrect.
+    # If old data exists, we upgrade deterministically.
+    if needs_upgrade:
+        expected = EXPECTED_RESOURCE_TYPE.get(finding.policy_id)
+
+        # legacy mismatch: return safe generic remediation instead of wrong template
+        if expected and finding.resource_type != expected:
+            remediation = (
+                "Remediation steps (generic)\n\n"
+                "Console Fix:\n"
+                "1) Verify this finding is correctly classified (legacy data mismatch detected).\n"
+                "2) Review the affected resource configuration.\n"
+                "3) Apply least privilege and secure-by-default configuration.\n\n"
+                "CLI Fix:\n"
+                "- Re-run scan and validate findings against current policies.\n"
+                "- Fix insecure configuration based on evidence.\n\n"
+                "Terraform hint:\n"
+                "- Ensure IaC matches secure defaults and avoids broad public exposure.\n\n"
+                f"Note: policy_id={finding.policy_id} expected_resource_type={expected} "
+                f"but got resource_type={finding.resource_type}."
+            )
+        else:
+            gen = RemediationGenerator()
+            remediation = gen.generate(
+                {
+                    "policy_id": finding.policy_id,
+                    "resource_id": finding.resource_id,
+                    "resource_type": finding.resource_type,
+                    "region": finding.region,
+                    "evidence": finding.evidence or {},
+                }
+            )
+
     return FindingDetailOut(
         finding_id=finding.id,
         policy_id=finding.policy_id,
@@ -84,6 +138,6 @@ def get_finding(finding_id: int, db: Session = Depends(get_db)):
         first_seen=finding.first_seen,
         last_seen=finding.last_seen,
         evidence=finding.evidence,
-        remediation=finding.remediation,
+        remediation=remediation,
         events=events,
     )

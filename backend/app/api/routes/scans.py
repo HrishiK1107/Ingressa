@@ -40,6 +40,7 @@ def run_scan(
             scan_run=scan,
             finding_dicts=out["findings"],
             asset_lookup=asset_lookup,
+            region=out["region"],
         )
 
         # 5) mark scan success

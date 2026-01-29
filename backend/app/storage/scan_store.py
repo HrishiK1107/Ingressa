@@ -22,12 +22,29 @@ class ScanStore:
         self.db.refresh(scan)
         return scan
 
-    def mark_success(self, scan: ScanRun) -> None:
+    def mark_success_with_stats(
+        self,
+        scan: ScanRun,
+        asset_count: int,
+        finding_count: int,
+        duration_ms: int,
+    ) -> None:
         scan.status = "SUCCESS"
         scan.finished_at = datetime.utcnow()
+        scan.asset_count = asset_count
+        scan.finding_count = finding_count
+        scan.duration_ms = duration_ms
+        scan.error_reason = None
         self.db.commit()
 
-    def mark_failed(self, scan: ScanRun) -> None:
+    def mark_failed_with_error(
+        self,
+        scan: ScanRun,
+        error_reason: str,
+        duration_ms: int,
+    ) -> None:
         scan.status = "FAILED"
         scan.finished_at = datetime.utcnow()
+        scan.error_reason = error_reason[:512]
+        scan.duration_ms = duration_ms
         self.db.commit()

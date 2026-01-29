@@ -1,18 +1,25 @@
 from datetime import datetime
-from typing import Optional
+from typing import List, Optional
 
-from pydantic import Field
-
-from app.schemas.common import APIModel
+from pydantic import BaseModel
 
 
-class ScanRunOut(APIModel):
+class ScanRunOut(BaseModel):
     scan_id: str
     mode: str
     status: str
+
     started_at: datetime
-    finished_at: Optional[datetime] = None
+    finished_at: Optional[datetime]
+
+    asset_count: Optional[int]
+    finding_count: Optional[int]
+    duration_ms: Optional[int]
+    error_reason: Optional[str]
+
+    class Config:
+        orm_mode = True
 
 
-class ScanRunCreateIn(APIModel):
-    mode: str = Field(default="mock", pattern="^(mock|aws)$")
+class ScanRunListOut(BaseModel):
+    scans: List[ScanRunOut]

@@ -22,6 +22,14 @@ class ScanRun(Base):
     started_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
     finished_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
 
+    # -------------------------
+    # B11.2 — Scan metadata
+    # -------------------------
+    asset_count: Mapped[Optional[int]] = mapped_column(nullable=True)
+    finding_count: Mapped[Optional[int]] = mapped_column(nullable=True)
+    duration_ms: Mapped[Optional[int]] = mapped_column(nullable=True)
+    error_reason: Mapped[Optional[str]] = mapped_column(String(512), nullable=True)
+
     findings = relationship("Finding", back_populates="scan_run")
 
 

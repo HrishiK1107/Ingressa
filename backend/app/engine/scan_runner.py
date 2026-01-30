@@ -33,28 +33,43 @@ class ScanRunner:
         if mode not in ("mock", "aws"):
             raise ValueError("mode must be mock|aws")
 
+        # -------------------------
         # 1) Collect
+        # -------------------------
         if mode == "mock":
             collector = MockAWSCollector(region=region)
         else:
-            collector = AWSCollector(region=region)
+            collector = AWSCollector(
+                region=region,
+                profile="ingressa",  # 🔒 explicit, deterministic
+            )
 
         collected = collector.collect()
 
+        # -------------------------
         # 2) Normalize
+        # -------------------------
         normalizer = MockAWSNormalizer()
         snap: NormalizedSnapshot = normalizer.normalize(collected)
 
+        # -------------------------
         # 3) Asset mapping
+        # -------------------------
         asset_nodes: List[AssetNode] = AssetMapper().map_assets(snap)
 
+        # -------------------------
         # 4) Graph build
+        # -------------------------
         graph = GraphBuilder().build(asset_nodes)
 
+        # -------------------------
         # 5) Policies
+        # -------------------------
         findings: List[Dict[str, Any]] = PolicyRunner().run(snap, graph)
 
+        # -------------------------
         # Summary
+        # -------------------------
         policy_counts: Dict[str, int] = {}
         for f in findings:
             pid = f["policy_id"]

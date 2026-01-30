@@ -1,8 +1,3 @@
-provider "aws" {
-  profile = "ingressa"
-  region  = var.region
-}
-
 resource "aws_security_group" "public_ssh" {
   name_prefix = "ingressa-pol001-ssh-"
   description = "POL-001 validation: public SSH"

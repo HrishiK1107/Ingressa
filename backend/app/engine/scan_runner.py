@@ -1,6 +1,7 @@
 import logging
 from typing import Any, Dict, List
 
+from app.collectors.aws_collector import AWSCollector
 from app.collectors.mock_aws_collector import MockAWSCollector
 from app.engine.asset_mapper import AssetMapper
 from app.engine.graph import GraphBuilder
@@ -26,12 +27,6 @@ class ScanRunner:
     """
     Runs pipeline:
     Collector -> Normalizer -> AssetMapper -> Graph -> PolicyRunner
-
-    NOTE:
-    - DB persistence is performed in API layer (B9.2).
-    - Runner returns:
-        * assets as list[dict] (for AssetStore)
-        * findings as list[dict] (for FindingStore)
     """
 
     def run(self, mode: str, region: str) -> Dict[str, Any]:
@@ -41,9 +36,10 @@ class ScanRunner:
         # 1) Collect
         if mode == "mock":
             collector = MockAWSCollector(region=region)
-            collected = collector.collect()
         else:
-            raise NotImplementedError("aws mode collector not implemented yet")
+            collector = AWSCollector(region=region)
+
+        collected = collector.collect()
 
         # 2) Normalize
         normalizer = MockAWSNormalizer()
@@ -75,6 +71,6 @@ class ScanRunner:
             "graph_edges": summary["edges"],
             "findings_count": len(findings),
             "policy_counts": policy_counts,
-            "assets": [_assetnode_to_dict(a) for a in asset_nodes],  # ✅ dicts
+            "assets": [_assetnode_to_dict(a) for a in asset_nodes],
             "findings": findings,
         }

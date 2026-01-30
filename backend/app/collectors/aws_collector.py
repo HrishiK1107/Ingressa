@@ -102,7 +102,7 @@ class AWSCollector(BaseCollector):
 
             resources["s3_buckets"].append(
                 {
-                    "bucket": name,
+                    "name": name,
                     "public_access_block": pab,
                 }
             )

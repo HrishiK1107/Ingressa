@@ -3,3 +3,6 @@ from app.db.models import Asset as Asset
 from app.db.models import Finding as Finding
 from app.db.models import FindingEvent as FindingEvent
 from app.db.models import ScanRun as ScanRun
+from app.db.session import get_session
+
+__all__ = ["get_session"]

@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Any, Dict, List, Set, Tuple
+from typing import Any, Dict, List, Optional, Set, Tuple
 
 from sqlalchemy.orm import Session
 
@@ -10,6 +10,15 @@ class FindingStore:
     def __init__(self, db: Session):
         self.db = db
 
+    # -------------------------------------------------
+    # READ HELPERS (B14 – AI Advisor support)
+    # -------------------------------------------------
+    def get_finding_by_id(self, finding_id: int) -> Optional[Finding]:
+        return self.db.query(Finding).filter(Finding.id == finding_id).one_or_none()
+
+    # -------------------------------------------------
+    # INTERNAL EVENT HELPERS
+    # -------------------------------------------------
     def _add_event(
         self,
         finding: Finding,
@@ -46,6 +55,9 @@ class FindingStore:
             is not None
         )
 
+    # -------------------------------------------------
+    # CORE RECONCILIATION LOGIC (LOCKED)
+    # -------------------------------------------------
     def reconcile_findings(
         self,
         scan_run: ScanRun,
@@ -179,11 +191,9 @@ class FindingStore:
                     },
                 )
 
-                # force re-create as new row
                 existing = None
 
             if existing:
-                # baseline event for older findings
                 if not self._has_any_event(existing.id):
                     self._add_event(
                         existing,
@@ -264,7 +274,7 @@ class FindingStore:
                     asset_id_fk=asset_db_id,
                 )
                 self.db.add(new_finding)
-                self.db.flush()  # generate id
+                self.db.flush()
 
                 self._add_event(
                     new_finding,

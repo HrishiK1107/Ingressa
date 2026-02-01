@@ -3,8 +3,13 @@ name: Ingressa Backend CI
 on:
   push:
     branches: ["main"]
+    paths:
+      - "backend/**"
+      - ".github/workflows/ci.yml"
   pull_request:
     branches: ["main"]
+    paths:
+      - "backend/**"
 
 jobs:
   backend-ci:
@@ -25,7 +30,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Lint + format check (ruff/black/isort)
+      - name: Lint + format check
         working-directory: backend
         run: |
           python -m ruff check .

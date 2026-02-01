@@ -1,16 +1,10 @@
-name: Ingressa Backend CI
+name: Ingressa CI
 
 on:
   push:
-    branches: ["main"]
-    paths:
-      - "backend/**"
-      - ".github/workflows/ci.yml"
+    branches: [ "main" ]
   pull_request:
-    branches: ["main"]
-    paths:
-      - "backend/**"
-      - ".github/workflows/ci.yml"
+    branches: [ "main" ]
 
 jobs:
   backend-ci:

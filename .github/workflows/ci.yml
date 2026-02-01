@@ -1,0 +1,43 @@
+name: Ingressa Backend CI
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  backend-ci:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install backend dependencies
+        working-directory: backend
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Lint + format check (ruff/black/isort)
+        working-directory: backend
+        run: |
+          python -m ruff check .
+          python -m black --check .
+          python -m isort --check-only .
+
+      - name: Run tests
+        working-directory: backend
+        env:
+          DATABASE_URL: "postgresql+psycopg://postgres:postgres@localhost:5432/ingressa"
+          AWS_REGION_DEFAULT: "ap-south-1"
+          SCAN_MODE: "mock"
+          AWS_AUTH_MODE: "keys"
+        run: |
+          python -m pytest -q

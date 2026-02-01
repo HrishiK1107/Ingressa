@@ -1,18 +1,17 @@
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate } from "react-router-dom";
 
-import Landing from '@/pages/Landing';
-import Dashboard from '@/pages/Dashboard';
-import Findings from '@/pages/Findings';
-import Assets from '@/pages/Assets';
-import Scans from '@/pages/Scans';
+import Landing from "@/pages/Landing";
+import Dashboard from "@/pages/Dashboard";
+import Findings from "@/pages/Findings";
+import Assets from "@/pages/Assets";
+import Scans from "@/pages/Scans";
 
-import LandingLayout from '@/components/layout/LandingLayout';
-import ConsoleLayout from '@/components/layout/ConsoleLayout';
+import LandingLayout from "@/components/layout/LandingLayout";
+import ConsoleLayout from "@/components/layout/ConsoleLayout";
 
 export default function App() {
   return (
     <Routes>
-      {/* Landing */}
       <Route
         path="/"
         element={
@@ -22,7 +21,6 @@ export default function App() {
         }
       />
 
-      {/* Console */}
       <Route
         path="/dashboard"
         element={

@@ -13,11 +13,8 @@
     },
 
     "strict": true,
-    "skipLibCheck": true,
     "isolatedModules": true,
-    "noEmit": true,
-
-    "types": ["react", "react-dom", "node"]
+    "noEmit": true
   },
   "include": ["src"]
 }

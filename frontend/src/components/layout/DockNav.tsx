@@ -13,9 +13,6 @@ import {
   Search,
 } from "lucide-react";
 
-/* ----------------------------------------
-   Dock apps
------------------------------------------ */
 const apps = [
   { name: "Dashboard", path: "/dashboard", Icon: LayoutDashboard },
   { name: "Findings", path: "/findings", Icon: AlertTriangle },
@@ -23,9 +20,6 @@ const apps = [
   { name: "Scans", path: "/scans", Icon: Search },
 ];
 
-/* ----------------------------------------
-   Dock Nav (SMOOTH / INERTIAL)
------------------------------------------ */
 export default function DockNav() {
   const mouseX = useMotionValue(Infinity);
   const navigate = useNavigate();
@@ -37,17 +31,15 @@ export default function DockNav() {
       onMouseLeave={() => mouseX.set(Infinity)}
       className="
         flex gap-3 px-4 py-3
-        rounded-xl
-        bg-neutral-900/80 backdrop-blur-md
-        border border-neutral-700
-        shadow-xl
+        rounded-2xl
+        glass
+        shadow-[0_0_40px_rgba(90,140,255,0.35)]
       "
     >
       {apps.map((app) => (
         <DockIcon
           key={app.path}
           mouseX={mouseX}
-          label={app.name}
           Icon={app.Icon}
           active={location.pathname === app.path}
           onClick={() => navigate(app.path)}
@@ -57,43 +49,37 @@ export default function DockNav() {
   );
 }
 
-/* ----------------------------------------
-   Dock Icon (REFERENCE-MATCHED PHYSICS)
------------------------------------------ */
 function DockIcon({
   mouseX,
   Icon,
-  label,
   active,
   onClick,
 }: {
   mouseX: any;
   Icon: any;
-  label: string;
   active: boolean;
   onClick: () => void;
 }) {
   const ref = useRef<HTMLDivElement>(null);
 
-  /* Distance from cursor */
   const distance = useTransform(mouseX, (x: number) => {
     const bounds = ref.current?.getBoundingClientRect();
     if (!bounds) return Infinity;
     return x - bounds.x - bounds.width / 2;
   });
 
-  /* Controlled scale range (less aggressive) */
+  /* slightly larger movement */
   const widthSync = useTransform(
     distance,
-    [-100, 0, 100],
-    [40, 56, 40]
+    [-120, 0, 120],
+    [40, 60, 40]
   );
 
-  /* Smooth spring — THIS is the magic */
+  /* snappier spring */
   const width = useSpring(widthSync, {
-    mass: 0.12,        // inertia
-    stiffness: 140,    // slower response
-    damping: 18,       // smooth settle
+    stiffness: 320, // ⬆️ faster response
+    damping: 22,    // ⬇️ less lag
+    mass: 0.08,     // ⬇️ lighter
   });
 
   return (
@@ -101,18 +87,17 @@ function DockIcon({
       ref={ref}
       style={{ width }}
       onClick={onClick}
-      title={label}
       className={`
         flex items-center justify-center
         aspect-square
-        rounded-lg
+        rounded-xl
         cursor-pointer
         select-none
-        transition-colors
+        will-change-[width]
         ${
           active
-            ? "bg-blue-600 text-white"
-            : "bg-neutral-800 text-neutral-300 hover:bg-neutral-700"
+            ? "bg-blue-600 text-white shadow-[0_0_20px_rgba(59,130,246,0.9)]"
+            : "bg-white/5 text-neutral-300 hover:bg-white/10"
         }
       `}
     >

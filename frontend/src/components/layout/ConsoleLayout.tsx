@@ -7,7 +7,7 @@ export default function ConsoleLayout({
   children: ReactNode;
 }) {
   return (
-    <div className="min-h-screen bg-black flex flex-col items-center justify-center px-6 py-6 gap-4">
+    <div className="min-h-screen flex flex-col items-center justify-center px-6 py-6 gap-6 bg-gradient-to-b from-black via-[#060912] to-black">
 
       {/* GLASS CONSOLE FRAME */}
       <div
@@ -16,16 +16,13 @@ export default function ConsoleLayout({
           max-w-[1400px]
           h-[82vh]
           rounded-3xl
-          border border-white/15
-          bg-gradient-to-b from-neutral-900/80 to-black
-          backdrop-blur-xl
-          shadow-[0_0_80px_rgba(59,130,246,0.15)]
+          glass
+          console-frame-glow
           overflow-hidden
           flex
           flex-col
         "
       >
-        {/* HEIGHT-CONSTRAINED CONTENT */}
         <main className="flex-1 min-h-0">
           <div className="h-full px-8 py-8">
             {children}

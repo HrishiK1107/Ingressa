@@ -1,7 +1,6 @@
 export default function Scans() {
   return (
-    <div className="h-full min-h-0 flex flex-col gap-6">
-
+    <div className="h-full min-h-0 stack">
       {/* TOP SEARCH ROW */}
       <div className="flex items-center gap-4">
         <div className="flex-1 h-10 rounded-lg border border-white/15 flex items-center px-3 text-white/40">
@@ -18,12 +17,9 @@ export default function Scans() {
 
       {/* MAIN CONTENT */}
       <div className="flex-1 min-h-0 grid grid-cols-[320px_1fr] gap-6">
-
         {/* LEFT PANEL — RUN SCAN */}
-        <div className="rounded-2xl border border-white/15 p-4 flex flex-col gap-4">
-          <div className="text-lg text-white/90">
-            Run Scan
-          </div>
+        <div className="rounded-2xl border border-white/15 card-pad flex flex-col gap-4">
+          <div className="text-lg text-white/90">Run Scan</div>
 
           <div className="text-sm text-white/60 leading-relaxed">
             Perform a cloud security scan to detect vulnerabilities and
@@ -49,7 +45,6 @@ export default function Scans() {
 
         {/* RIGHT PANEL — SCANS TABLE */}
         <div className="min-h-0 rounded-2xl border border-white/15 flex flex-col overflow-hidden">
-
           {/* TABLE FILTER BAR */}
           <div className="h-12 px-4 flex items-center gap-3 border-b border-white/10 text-sm text-white/60">
             <div className="h-8 px-3 rounded-md border border-white/15 flex items-center">
@@ -60,13 +55,15 @@ export default function Scans() {
           </div>
 
           {/* TABLE HEADER */}
-          <div className="
-            h-12 px-4
-            grid grid-cols-[1fr_1fr_1fr_1fr_1fr_1fr_40px]
-            items-center
-            text-xs text-white/50
-            border-b border-white/10
-          ">
+          <div
+            className="
+              h-12 px-4
+              grid grid-cols-[1fr_1fr_1fr_1fr_1fr_1fr_40px]
+              items-center
+              text-xs text-white/50
+              border-b border-white/10
+            "
+          >
             <div>SCAN ID</div>
             <div>STARTED</div>
             <div>COMPLETED</div>
@@ -77,9 +74,7 @@ export default function Scans() {
           </div>
 
           {/* TABLE BODY */}
-          <div className="flex-1 min-h-0">
-            {/* rows go here */}
-          </div>
+          <div className="flex-1 min-h-0">{/* rows go here */}</div>
 
           {/* TABLE FOOTER / PAGINATION */}
           <div className="h-12 px-4 border-t border-white/10 flex items-center justify-between text-xs text-white/50">
@@ -93,10 +88,8 @@ export default function Scans() {
               </div>
             </div>
           </div>
-
         </div>
       </div>
-
     </div>
   );
 }

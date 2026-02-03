@@ -1,14 +1,9 @@
 import DockNav from "./DockNav";
 import type { ReactNode } from "react";
 
-export default function ConsoleLayout({
-  children,
-}: {
-  children: ReactNode;
-}) {
+export default function ConsoleLayout({ children }: { children: ReactNode }) {
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center px-6 py-6 gap-6 bg-gradient-to-b from-black via-[#060912] to-black">
-
+    <div className="min-h-screen flex flex-col items-center justify-center page-pad gap-6 bg-gradient-to-b from-black via-[#060912] to-black">
       {/* GLASS CONSOLE FRAME */}
       <div
         className="
@@ -24,9 +19,8 @@ export default function ConsoleLayout({
         "
       >
         <main className="flex-1 min-h-0">
-          <div className="h-full px-8 py-8">
-            {children}
-          </div>
+          {/* inner padding normalized via token rhythm */}
+          <div className="h-full console-pad">{children}</div>
         </main>
       </div>
 
@@ -34,7 +28,6 @@ export default function ConsoleLayout({
       <div className="h-20 flex items-center justify-center">
         <DockNav />
       </div>
-
     </div>
   );
 }

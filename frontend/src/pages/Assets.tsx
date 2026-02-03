@@ -1,7 +1,6 @@
 export default function Assets() {
   return (
     <div className="h-full min-h-0 flex flex-col gap-5">
-
       {/* SEARCH BAR */}
       <div className="h-10 rounded-lg border border-white/15 flex items-center px-3 text-white/40">
         Search…
@@ -25,7 +24,6 @@ export default function Assets() {
 
       {/* TABLE WRAPPER */}
       <div className="flex-1 min-h-0 rounded-2xl border border-white/15 flex flex-col overflow-hidden">
-
         {/* TABLE HEADER */}
         <div
           className="
@@ -46,9 +44,7 @@ export default function Assets() {
         </div>
 
         {/* TABLE BODY */}
-        <div className="flex-1 min-h-0">
-          {/* rows go here */}
-        </div>
+        <div className="flex-1 min-h-0">{/* rows go here */}</div>
 
         {/* TABLE FOOTER / PAGINATION */}
         <div className="h-12 border-t border-white/10 flex items-center justify-between px-4 text-xs text-white/50">
@@ -61,9 +57,7 @@ export default function Assets() {
             </div>
           </div>
         </div>
-
       </div>
-
     </div>
   );
 }

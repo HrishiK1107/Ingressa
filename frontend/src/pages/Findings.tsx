@@ -1,7 +1,6 @@
 export default function Findings() {
   return (
-    <div className="h-full min-h-0 flex flex-col gap-6">
-
+    <div className="h-full min-h-0 stack">
       {/* SEARCH + QUICK FILTER ICON */}
       <div className="flex items-center gap-4">
         <div className="flex-1 h-10 rounded-lg border border-white/15 flex items-center px-3 text-white/40">
@@ -22,9 +21,7 @@ export default function Findings() {
         <Chip label="Region" />
 
         <div className="ml-auto flex items-center gap-3">
-          <div className="text-sm text-white/50 cursor-pointer">
-            Clear all
-          </div>
+          <div className="text-sm text-white/50 cursor-pointer">Clear all</div>
           <div className="h-9 px-4 rounded-md border border-white/15 flex items-center text-sm">
             Filters
           </div>
@@ -33,15 +30,16 @@ export default function Findings() {
 
       {/* TABLE CONTAINER */}
       <div className="flex-1 min-h-0 rounded-2xl border border-white/15 flex flex-col overflow-hidden">
-
         {/* TABLE HEADER */}
-        <div className="
-          h-12 px-4
-          grid grid-cols-[40px_1fr_1fr_2fr_1fr_1fr_1fr_40px]
-          items-center
-          text-xs text-white/50
-          border-b border-white/10
-        ">
+        <div
+          className="
+            h-12 px-4
+            grid grid-cols-[40px_1fr_1fr_2fr_1fr_1fr_1fr_40px]
+            items-center
+            text-xs text-white/50
+            border-b border-white/10
+          "
+        >
           <div />
           <div>SEVERITY</div>
           <div>RISK</div>
@@ -53,9 +51,7 @@ export default function Findings() {
         </div>
 
         {/* TABLE BODY (FILLS SPACE) */}
-        <div className="flex-1 min-h-0">
-          {/* rows go here */}
-        </div>
+        <div className="flex-1 min-h-0">{/* rows go here */}</div>
 
         {/* TABLE FOOTER / PAGINATION */}
         <div className="h-12 px-4 border-t border-white/10 flex items-center justify-between text-xs text-white/50">
@@ -70,9 +66,7 @@ export default function Findings() {
             </div>
           </div>
         </div>
-
       </div>
-
     </div>
   );
 }
@@ -82,13 +76,15 @@ export default function Findings() {
 ----------------------------------------- */
 function Chip({ label }: { label: string }) {
   return (
-    <div className="
-      h-9 px-3
-      rounded-md
-      border border-white/15
-      flex items-center
-      text-sm text-white/70
-    ">
+    <div
+      className="
+        h-9 px-3
+        rounded-md
+        border border-white/15
+        flex items-center
+        text-sm text-white/70
+      "
+    >
       {label}
     </div>
   );

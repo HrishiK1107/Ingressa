@@ -2,39 +2,102 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ----------------------------------------
+   TOKENS (SINGLE SOURCE OF TRUTH)
+----------------------------------------- */
 @layer base {
   :root {
-    color-scheme: dark;
+    /* Core */
+    --bg: 222 47% 6%;
+    --fg: 0 0% 98%;
+
+    /* Surfaces */
+    --card: 222 40% 9%;
+    --card-2: 222 35% 11%;
+
+    /* Muted text */
+    --muted: 0 0% 70%;
+    --muted-2: 0 0% 55%;
+
+    /* Borders */
+    --border: 0 0% 14%;
+
+    /* Accent */
+    --accent: 210 100% 60%;
+    --accent-2: 270 100% 70%;
+
+    /* Radius */
+    --radius: 20px;
+
+    /* Spacing rhythm */
+    --page-x: 24px;
+    --page-y: 18px;
   }
 
   html,
-  body,
-  #root {
+  body {
     height: 100%;
   }
 
   body {
-    /* darker global vignette */
-    background: radial-gradient(
-      120% 100% at 50% 0%,
-      #070b16 0%,
-      #03050b 55%,
-      #000000 100%
-    );
-    color: #e5e7eb;
-    font-feature-settings: "cv02","cv03","cv04","cv11";
+    @apply bg-bg text-fg antialiased;
+    font-feature-settings: "ss01" 1, "ss02" 1;
+  }
+
+  /* Typography baseline */
+  h1 {
+    @apply text-4xl font-semibold tracking-tight;
+  }
+  h2 {
+    @apply text-2xl font-semibold tracking-tight;
+  }
+  h3 {
+    @apply text-xl font-semibold;
+  }
+  p {
+    @apply text-base leading-7 text-muted;
   }
 }
 
 /* ----------------------------------------
-   DARK GLASS (TABLE / PANELS)
+   COMPONENT UTILITIES + GLASS
 ----------------------------------------- */
 @layer components {
+  /* Page padding rhythm */
+  .page-pad {
+    padding-left: var(--page-x);
+    padding-right: var(--page-x);
+    padding-top: var(--page-y);
+    padding-bottom: var(--page-y);
+  }
+
+  /* Console inner padding rhythm */
+  .console-pad {
+    padding: 18px;
+  }
+
+  /* Standard section gap */
+  .stack {
+    @apply flex flex-col gap-4;
+  }
+
+  /* Standard card padding */
+  .card-pad {
+    @apply p-4;
+  }
+
+  /* Big card padding (for main panels) */
+  .card-pad-lg {
+    @apply p-6;
+  }
+
+  /* ----------------------------------------
+     DARK GLASS (TABLE / PANELS)
+  ----------------------------------------- */
   .glass {
     position: relative;
     overflow: hidden;
 
-    /* ⬇️ DARKER than before */
     background: linear-gradient(
       180deg,
       rgba(14, 20, 38, 0.92),
@@ -46,7 +109,6 @@
 
     border-radius: inherit;
 
-    /* dimmer edge */
     border: 1px solid rgba(110, 150, 255, 0.22);
 
     box-shadow:
@@ -62,7 +124,6 @@
     position: relative;
     overflow: hidden;
 
-    /* darkest layer */
     background: linear-gradient(
       180deg,
       rgba(12, 18, 34, 0.97),
@@ -78,7 +139,7 @@
     height: 55%;
     border-radius: 50%;
     pointer-events: none;
-    opacity: 0.45; /* ⬇️ reduced brightness */
+    opacity: 0.45;
   }
 
   .console-frame-glow::before {
@@ -106,12 +167,20 @@
   }
 
   @keyframes console-glow-top {
-    from { transform: translateX(0%); }
-    to   { transform: translateX(100%); }
+    from {
+      transform: translateX(0%);
+    }
+    to {
+      transform: translateX(100%);
+    }
   }
 
   @keyframes console-glow-bottom {
-    from { transform: translateX(0%); }
-    to   { transform: translateX(-100%); }
+    from {
+      transform: translateX(0%);
+    }
+    to {
+      transform: translateX(-100%);
+    }
   }
 }

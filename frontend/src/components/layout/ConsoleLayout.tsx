@@ -1,5 +1,6 @@
 import DockNav from "./DockNav";
 import type { ReactNode } from "react";
+import ConnectivityBadge from "@/components/ConnectivityBadge";
 
 export default function ConsoleLayout({ children }: { children: ReactNode }) {
   return (
@@ -22,6 +23,12 @@ export default function ConsoleLayout({ children }: { children: ReactNode }) {
           {/* inner padding normalized via token rhythm */}
           <div className="h-full console-pad">{children}</div>
         </main>
+
+        {/* CONNECTIVITY FOOTER (F1.4) */}
+        <div className="h-12 px-4 border-t border-white/10 flex items-center justify-between">
+          <ConnectivityBadge />
+          <div className="text-xs text-white/40">Ingressa Console</div>
+        </div>
       </div>
 
       {/* DOCK */}

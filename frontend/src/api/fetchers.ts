@@ -1,4 +1,6 @@
 import { apiclient } from "./client";
+import { ENDPOINTS } from "./endpoints";
+import type { Finding } from "./types";
 
 export const fetchDashboard = async () => {
   const res = await apiclient.get("/dashboard");
@@ -10,8 +12,16 @@ export const fetchAssets = async () => {
   return res.data;
 };
 
-export const fetchFindings = async () => {
-  const res = await apiclient.get("/findings");
+export const fetchFindings = async (params?: {
+  severity?: string;
+  status?: string;
+  policy_id?: string;
+  q?: string;
+  limit?: number;
+}): Promise<Finding[]> => {
+  const res = await apiclient.get<Finding[]>(
+    ENDPOINTS.findings(params)
+  );
   return res.data;
 };
 

@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { fetchFindings } from "../api/client";
+import { fetchFindings } from "../api/fetchers";
 import { queryKeys } from "../api/queryKeys";
 import type { Finding } from "../api/types";
 
@@ -11,10 +11,10 @@ export interface FindingsFilters {
   limit?: number;
 }
 
-export function useFindings(filters?: FindingsFilters) {
+export function useFindings(filters: FindingsFilters = {}) {
   return useQuery<Finding[]>({
-    queryKey: queryKeys.findings(filters ?? {}),
-    queryFn: () => fetchFindings(),
+    queryKey: queryKeys.findings(filters),
+    queryFn: () => fetchFindings(filters),
     staleTime: 30_000,
   });
 }

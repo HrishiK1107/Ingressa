@@ -4,7 +4,7 @@ import { Table } from "../ui/Table";
 import { Badge } from "../ui/Badge";
 import { formatDate } from "../../utils/format";
 
-type SortKey = "risk_score" | "severity" | "last_seen";
+type SortKey = "severity" | "risk_score" | "last_seen";
 type SortDir = "asc" | "desc";
 
 interface Props {
@@ -13,12 +13,10 @@ interface Props {
 }
 
 export function FindingsTable({ items, onSelect }: Props) {
-  const [sortKey, setSortKey] = useState<SortKey | null>(null);
+  const [sortKey, setSortKey] = useState<SortKey>("risk_score");
   const [sortDir, setSortDir] = useState<SortDir>("desc");
 
   const sortedItems = [...items].sort((a, b) => {
-    if (!sortKey) return 0;
-
     let av: any = a[sortKey];
     let bv: any = b[sortKey];
 
@@ -35,7 +33,6 @@ export function FindingsTable({ items, onSelect }: Props) {
   function handleSort(key: SortKey) {
     const nextDir =
       sortKey === key && sortDir === "desc" ? "asc" : "desc";
-
     setSortKey(key);
     setSortDir(nextDir);
   }
@@ -43,13 +40,8 @@ export function FindingsTable({ items, onSelect }: Props) {
   return (
     <Table
       data={sortedItems}
-      onRowClick={(f) => onSelect(f)}
+      onRowClick={onSelect}
       columns={[
-        {
-          key: "finding_id",
-          header: "ID",
-          render: (f) => f.finding_id,
-        },
         {
           key: "severity",
           header: "Severity",
@@ -63,10 +55,30 @@ export function FindingsTable({ items, onSelect }: Props) {
         },
         {
           key: "risk_score",
-          header: "Risk",
+          header: "Risk Score",
           sortable: true,
           onSort: () => handleSort("risk_score"),
           render: (f) => f.risk_score.toFixed(1),
+        },
+        {
+          key: "policy_id",
+          header: "Policy ID",
+          render: (f) => f.policy_id,
+        },
+        {
+          key: "resource_type",
+          header: "Resource Type",
+          render: (f) => f.resource_type,
+        },
+        {
+          key: "resource_id",
+          header: "Resource ID",
+          render: (f) => f.resource_id,
+        },
+        {
+          key: "region",
+          header: "Region",
+          render: (f) => f.region ?? "global",
         },
         {
           key: "status",
@@ -76,6 +88,11 @@ export function FindingsTable({ items, onSelect }: Props) {
               {f.status}
             </Badge>
           ),
+        },
+        {
+          key: "first_seen",
+          header: "First Seen",
+          render: (f) => formatDate(f.first_seen),
         },
         {
           key: "last_seen",

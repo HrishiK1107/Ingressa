@@ -19,7 +19,7 @@ export default function Findings() {
         title="Failed to load findings"
         message="Unable to fetch findings from the server."
         actionLabel="Retry"
-        onAction={() => refetch()}
+        onAction={refetch}
       />
     );
   }
@@ -34,18 +34,30 @@ export default function Findings() {
   }
 
   return (
-    <div>
-      <h1>Findings</h1>
+    <div className="flex h-full">
+      {/* LEFT: TABLE */}
+      <div
+        className={`transition-all duration-200 ${
+          selected ? "w-[calc(100%-420px)]" : "w-full"
+        }`}
+      >
+        <h1 className="mb-4 text-xl font-semibold">Findings</h1>
 
-      <FindingsTable
-        items={data}
-        onSelect={(f) => setSelected(f)}
-      />
+        <FindingsTable
+          items={data}
+          onSelect={(f) => setSelected(f)}
+        />
+      </div>
 
-      <FindingDrawer
-        finding={selected}
-        onClose={() => setSelected(null)}
-      />
+      {/* RIGHT: DRAWER */}
+      {selected && (
+        <div className="w-[420px] border-l border-border">
+          <FindingDrawer
+            finding={selected}
+            onClose={() => setSelected(null)}
+          />
+        </div>
+      )}
     </div>
   );
 }

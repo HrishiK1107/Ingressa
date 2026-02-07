@@ -11,9 +11,10 @@ export function FindingDrawer({ finding, onClose }: Props) {
 
   return (
     <Drawer open={!!finding} onClose={onClose}>
-      <div className="h-full p-4 text-sm space-y-4">
+      <div className="h-full p-4 text-sm space-y-6">
+        {/* Header */}
         <div className="flex items-center justify-between">
-          <h2 className="font-semibold">
+          <h2 className="text-lg font-semibold">
             Finding {finding.finding_id}
           </h2>
           <button
@@ -24,35 +25,80 @@ export function FindingDrawer({ finding, onClose }: Props) {
           </button>
         </div>
 
-        <div className="space-y-2">
-          <p><b>Policy ID:</b> {finding.policy_id}</p>
-          <p><b>Status:</b> {finding.status}</p>
-          <p><b>Severity:</b> {finding.severity}</p>
-          <p><b>Risk Score:</b> {finding.risk_score.toFixed(1)}</p>
+        {/* Summary */}
+        <section>
+          <h3 className="font-semibold mb-2">Summary</h3>
+          <div className="space-y-1">
+            <p><b>Policy ID:</b> {finding.policy_id}</p>
+            <p><b>Status:</b> {finding.status}</p>
+            <p><b>Severity:</b> {finding.severity}</p>
+            <p><b>Risk Score:</b> {finding.risk_score.toFixed(1)}</p>
+            <p>
+              <b>Resource:</b>{" "}
+              {finding.resource_type} / {finding.resource_id} (
+              {finding.region ?? "global"})
+            </p>
+          </div>
+        </section>
 
-          <hr />
+        <hr />
 
-          <p><b>Resource ID:</b> {finding.resource_id}</p>
-          <p><b>Resource Type:</b> {finding.resource_type}</p>
-          <p><b>Region:</b> {finding.region ?? "global"}</p>
-
-          <hr />
-
-          <p>
-            <b>First Seen:</b>{" "}
-            {new Date(finding.first_seen).toLocaleString()}
+        {/* Evidence */}
+        <section>
+          <h3 className="font-semibold mb-2">Evidence</h3>
+          <pre className="text-xs bg-muted p-2 rounded overflow-x-auto">
+{JSON.stringify(
+  {
+    finding_id: finding.finding_id,
+    policy_id: finding.policy_id,
+    resource_id: finding.resource_id,
+    resource_type: finding.resource_type,
+    region: finding.region,
+  },
+  null,
+  2
+)}
+          </pre>
+          <p className="text-xs opacity-60 mt-1">
+            Evidence payload will be expanded when backend is wired.
           </p>
-          <p>
-            <b>Last Seen:</b>{" "}
-            {new Date(finding.last_seen).toLocaleString()}
-          </p>
+        </section>
 
-          <hr />
+        <hr />
 
-          <p className="opacity-60 italic">
-            Explainability panel will appear here
+        {/* Remediation */}
+        <section>
+          <h3 className="font-semibold mb-2">Remediation</h3>
+          <ul className="list-disc pl-5 space-y-1">
+            <li>Identify the affected resource.</li>
+            <li>Review the policy requirements.</li>
+            <li>Apply the recommended configuration.</li>
+            <li>Re-run the scan to confirm resolution.</li>
+          </ul>
+          <p className="text-xs opacity-60 mt-2">
+            Detailed remediation steps will be provided by the backend.
           </p>
-        </div>
+        </section>
+
+        <hr />
+
+        {/* Timeline */}
+        <section>
+          <h3 className="font-semibold mb-2">Timeline</h3>
+          <ul className="space-y-1 text-xs">
+            <li>
+              <b>CREATED:</b>{" "}
+              {new Date(finding.first_seen).toLocaleString()}
+            </li>
+            <li>
+              <b>LAST SEEN:</b>{" "}
+              {new Date(finding.last_seen).toLocaleString()}
+            </li>
+            {finding.status === "RESOLVED" && (
+              <li><b>RESOLVED:</b> —</li>
+            )}
+          </ul>
+        </section>
       </div>
     </Drawer>
   );

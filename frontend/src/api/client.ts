@@ -1,28 +1,53 @@
-import axios, { AxiosError } from "axios";
+import axios from "axios";
 
-const apiClient = axios.create({
+import { ENDPOINTS } from "./endpoints";
+import type {
+  AssetsResponse,
+  FindingsResponse,
+  ScansResponse,
+} from "./types";
+
+/**
+ * Axios client instance
+ */
+export const apiclient = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL,
-  timeout: 10000,
+  timeout: 10_000,
   headers: {
     "Content-Type": "application/json",
   },
 });
 
-// ---- Response interceptor (success pass-through)
-apiClient.interceptors.response.use(
+/**
+ * Response interceptor (normalize errors)
+ */
+apiclient.interceptors.response.use(
   (response) => response,
-  (error: AxiosError) => {
-    // Normalize error shape
-    const normalizedError = {
-      status: error.response?.status ?? 0,
+  (error) => {
+    return Promise.reject({
+      status: error?.response?.status ?? 0,
       message:
-        (error.response?.data as any)?.detail ||
-        error.message ||
+        error?.response?.data?.detail ??
+        error?.message ??
         "Unknown API error",
-    };
-
-    return Promise.reject(normalizedError);
+    });
   }
 );
 
-export { apiClient };
+/* ---------------- Assets ---------------- */
+export async function fetchAssets(): Promise<AssetsResponse> {
+  const res = await apiclient.get<AssetsResponse>(ENDPOINTS.ASSETS);
+  return res.data;
+}
+
+/* ---------------- Findings ---------------- */
+export async function fetchFindings(): Promise<FindingsResponse> {
+  const res = await apiclient.get<FindingsResponse>(ENDPOINTS.FINDINGS);
+  return res.data;
+}
+
+/* ---------------- Scans ---------------- */
+export async function fetchScans(): Promise<ScansResponse> {
+  const res = await apiclient.get<ScansResponse>(ENDPOINTS.SCANS);
+  return res.data;
+}

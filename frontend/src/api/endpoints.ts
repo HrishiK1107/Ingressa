@@ -8,6 +8,9 @@ export const ENDPOINTS = {
      System
   -------------------- */
   health: () => `/health`,
+  ASSETS: "/assets",
+  FINDINGS: "/findings",
+  SCANS: "/scans",
 
   /* --------------------
      Scans

@@ -1,9 +1,14 @@
 import { useQuery } from "@tanstack/react-query";
 import { queryKeys } from "../api/queryKeys";
-import { fetchDashboard } from "../api/fetchers";
+import { apiclient } from "../api/client";
 
-export const useDashboard = () =>
-  useQuery({
-    queryKey: queryKeys.dashboard,
-    queryFn: fetchDashboard,
+export function useDashboard() {
+  return useQuery({
+    queryKey: queryKeys.health,
+    queryFn: async () => {
+      const res = await apiclient.get("/health");
+      return res.data;
+    },
+    staleTime: 10_000,
   });
+}

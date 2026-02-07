@@ -19,19 +19,18 @@ export const apiclient = axios.create({
 });
 
 /**
- * Response interceptor (normalize errors)
+ * Normalize API errors for TanStack Query
  */
 apiclient.interceptors.response.use(
   (response) => response,
-  (error) => {
-    return Promise.reject({
+  (error) =>
+    Promise.reject({
       status: error?.response?.status ?? 0,
       message:
         error?.response?.data?.detail ??
         error?.message ??
         "Unknown API error",
-    });
-  }
+    })
 );
 
 /* ---------------- Assets ---------------- */
@@ -49,5 +48,13 @@ export async function fetchFindings(): Promise<FindingsResponse> {
 /* ---------------- Scans ---------------- */
 export async function fetchScans(): Promise<ScansResponse> {
   const res = await apiclient.get<ScansResponse>(ENDPOINTS.SCANS);
+  return res.data;
+}
+
+/* ---------------- Run Scan ---------------- */
+export async function runScan(mode: "mock" | "aws") {
+  const res = await apiclient.post(
+    ENDPOINTS.runScan(mode)
+  );
   return res.data;
 }

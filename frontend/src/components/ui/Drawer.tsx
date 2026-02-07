@@ -9,7 +9,7 @@ interface Props {
 export function Drawer({ open, onClose, children }: Props) {
   const ref = useRef<HTMLDivElement | null>(null);
 
-  // ESC
+  // ESC key
   useEffect(() => {
     if (!open) return;
 
@@ -40,24 +40,23 @@ export function Drawer({ open, onClose, children }: Props) {
   if (!open) return null;
 
   return (
-    <div
-      className="fixed right-5 top-5 bg-red-500 p-5 z-50"
-    >
+    <>
+      {/* Backdrop (invisible, but clickable) */}
+      <div className="fixed inset-0 z-40" />
+
+      {/* Drawer */}
       <div
         ref={ref}
         className="
-          pointer-events-auto
-          fixed right-5 top-5
-          w-[380px]
-          max-h-[calc(100vh-40px)]
+          fixed right-0 top-0 z-50
+          h-full w-[420px]
           overflow-y-auto
-          border border-border
+          border-l border-border
           bg-background
-          p-5
         "
       >
         {children}
       </div>
-    </div>
+    </>
   );
 }

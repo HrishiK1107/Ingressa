@@ -1,6 +1,7 @@
 import { apiclient } from "./client";
 import { ENDPOINTS } from "./endpoints";
 import type { Finding } from "./types";
+import type { FindingEvent } from "./types";
 
 export const fetchDashboard = async () => {
   const res = await apiclient.get("/dashboard");
@@ -27,5 +28,14 @@ export const fetchFindings = async (params?: {
 
 export const fetchScans = async () => {
   const res = await apiclient.get("/scans");
+  return res.data;
+};
+
+export const fetchFindingEvents = async (
+  findingId: number
+): Promise<FindingEvent[]> => {
+  const res = await apiclient.get<FindingEvent[]>(
+    ENDPOINTS.findingEvents(String(findingId))
+  );
   return res.data;
 };

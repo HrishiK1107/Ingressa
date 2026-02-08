@@ -42,3 +42,11 @@ export interface ScanRun {
 export interface ScansResponse {
   scans: ScanRun[];
 }
+
+export interface FindingEvent {
+  id: number;
+  finding_id: number;
+  event_type: "CREATED" | "UPDATED" | "RESOLVED";
+  created_at: string;
+  snapshot?: Record<string, any>;
+}

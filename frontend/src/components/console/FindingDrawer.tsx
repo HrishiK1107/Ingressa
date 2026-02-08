@@ -1,5 +1,14 @@
+import { useState } from "react";
 import type { Finding } from "../../api/types";
 import { Drawer } from "../ui/Drawer";
+import { useFindingEvents } from "../../hooks/useFindingEvents";
+
+type Tab =
+  | "overview"
+  | "evidence"
+  | "remediation"
+  | "timeline"
+  | "ai";
 
 interface Props {
   finding: Finding | null;
@@ -7,11 +16,18 @@ interface Props {
 }
 
 export function FindingDrawer({ finding, onClose }: Props) {
+  const [tab, setTab] = useState<Tab>("overview");
+
   if (!finding) return null;
+
+  const {
+    data: events,
+    isLoading: eventsLoading,
+  } = useFindingEvents(finding.finding_id);
 
   return (
     <Drawer open={!!finding} onClose={onClose}>
-      <div className="h-full p-4 text-sm space-y-6">
+      <div className="h-full p-4 text-sm flex flex-col gap-4">
         {/* Header */}
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-semibold">
@@ -25,28 +41,46 @@ export function FindingDrawer({ finding, onClose }: Props) {
           </button>
         </div>
 
-        {/* Summary */}
-        <section>
-          <h3 className="font-semibold mb-2">Summary</h3>
-          <div className="space-y-1">
-            <p><b>Policy ID:</b> {finding.policy_id}</p>
-            <p><b>Status:</b> {finding.status}</p>
-            <p><b>Severity:</b> {finding.severity}</p>
-            <p><b>Risk Score:</b> {finding.risk_score.toFixed(1)}</p>
-            <p>
-              <b>Resource:</b>{" "}
-              {finding.resource_type} / {finding.resource_id} (
-              {finding.region ?? "global"})
-            </p>
-          </div>
-        </section>
+        {/* Tabs */}
+        <div className="flex gap-3 border-b border-border pb-2 text-sm">
+          <button onClick={() => setTab("overview")}>
+            Overview
+          </button>
+          <button onClick={() => setTab("evidence")}>
+            Evidence
+          </button>
+          <button onClick={() => setTab("remediation")}>
+            Remediation
+          </button>
+          <button onClick={() => setTab("timeline")}>
+            Timeline
+          </button>
+          <button onClick={() => setTab("ai")}>
+            AI Advisor
+          </button>
+        </div>
 
-        <hr />
+        {/* Content */}
+        <div className="flex-1 overflow-y-auto space-y-4">
+          {/* OVERVIEW */}
+          {tab === "overview" && (
+            <section className="space-y-2">
+              <p><b>Policy ID:</b> {finding.policy_id}</p>
+              <p><b>Status:</b> {finding.status}</p>
+              <p><b>Severity:</b> {finding.severity}</p>
+              <p><b>Risk Score:</b> {finding.risk_score.toFixed(1)}</p>
+              <p>
+                <b>Resource:</b>{" "}
+                {finding.resource_type} / {finding.resource_id} (
+                {finding.region ?? "global"})
+              </p>
+            </section>
+          )}
 
-        {/* Evidence */}
-        <section>
-          <h3 className="font-semibold mb-2">Evidence</h3>
-          <pre className="text-xs bg-muted p-2 rounded overflow-x-auto">
+          {/* EVIDENCE */}
+          {tab === "evidence" && (
+            <section className="space-y-2">
+              <pre className="text-xs bg-muted p-2 rounded overflow-x-auto">
 {JSON.stringify(
   {
     finding_id: finding.finding_id,
@@ -58,47 +92,71 @@ export function FindingDrawer({ finding, onClose }: Props) {
   null,
   2
 )}
-          </pre>
-          <p className="text-xs opacity-60 mt-1">
-            Evidence payload will be expanded when backend is wired.
-          </p>
-        </section>
+              </pre>
+              <p className="text-xs opacity-60">
+                Evidence payload will be expanded when backend is wired.
+              </p>
+            </section>
+          )}
 
-        <hr />
+          {/* REMEDIATION */}
+          {tab === "remediation" && (
+            <section className="space-y-2">
+              <ul className="list-disc pl-5 space-y-1">
+                <li>Identify the affected resource.</li>
+                <li>Review the policy requirements.</li>
+                <li>Apply the recommended configuration.</li>
+                <li>Re-run the scan to confirm resolution.</li>
+              </ul>
+              <p className="text-xs opacity-60">
+                Detailed remediation steps will be provided by the backend.
+              </p>
+            </section>
+          )}
 
-        {/* Remediation */}
-        <section>
-          <h3 className="font-semibold mb-2">Remediation</h3>
-          <ul className="list-disc pl-5 space-y-1">
-            <li>Identify the affected resource.</li>
-            <li>Review the policy requirements.</li>
-            <li>Apply the recommended configuration.</li>
-            <li>Re-run the scan to confirm resolution.</li>
-          </ul>
-          <p className="text-xs opacity-60 mt-2">
-            Detailed remediation steps will be provided by the backend.
-          </p>
-        </section>
+          {/* TIMELINE */}
+          {tab === "timeline" && (
+            <section className="space-y-2 text-xs">
+              {eventsLoading && (
+                <p>Loading timeline…</p>
+              )}
 
-        <hr />
+              {!eventsLoading && events && events.length > 0 && (
+                <ul className="space-y-1">
+                  {events.map((e) => (
+                    <li key={e.id}>
+                      <b>{e.event_type}:</b>{" "}
+                      {new Date(e.created_at).toLocaleString()}
+                    </li>
+                  ))}
+                </ul>
+              )}
 
-        {/* Timeline */}
-        <section>
-          <h3 className="font-semibold mb-2">Timeline</h3>
-          <ul className="space-y-1 text-xs">
-            <li>
-              <b>CREATED:</b>{" "}
-              {new Date(finding.first_seen).toLocaleString()}
-            </li>
-            <li>
-              <b>LAST SEEN:</b>{" "}
-              {new Date(finding.last_seen).toLocaleString()}
-            </li>
-            {finding.status === "RESOLVED" && (
-              <li><b>RESOLVED:</b> —</li>
-            )}
-          </ul>
-        </section>
+              {!eventsLoading && (!events || events.length === 0) && (
+                <>
+                  <p>
+                    <b>CREATED:</b>{" "}
+                    {new Date(finding.first_seen).toLocaleString()}
+                  </p>
+                  <p>
+                    <b>LAST SEEN:</b>{" "}
+                    {new Date(finding.last_seen).toLocaleString()}
+                  </p>
+                  {finding.status === "RESOLVED" && (
+                    <p><b>RESOLVED:</b> —</p>
+                  )}
+                </>
+              )}
+            </section>
+          )}
+
+          {/* AI ADVISOR */}
+          {tab === "ai" && (
+            <section className="text-xs opacity-60 italic">
+              AI advisor explanations will appear here.
+            </section>
+          )}
+        </div>
       </div>
     </Drawer>
   );

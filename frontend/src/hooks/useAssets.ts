@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
-import { fetchAssets } from "../api/client";
+import { fetchAssets } from "../api/fetchers";
 import { queryKeys } from "../api/queryKeys";
+import type { AssetsResponse } from "../api/types";
 
 export interface AssetsFilters {
   asset_type?: string;
@@ -8,10 +9,10 @@ export interface AssetsFilters {
   q?: string;
 }
 
-export function useAssets(filters?: AssetsFilters) {
-  return useQuery({
-    queryKey: queryKeys.assets(filters ?? {}),
-    queryFn: () => fetchAssets(),
+export function useAssets(filters: AssetsFilters = {}) {
+  return useQuery<AssetsResponse>({
+    queryKey: queryKeys.assets(filters),
+    queryFn: fetchAssets,
     staleTime: 60_000,
   });
 }

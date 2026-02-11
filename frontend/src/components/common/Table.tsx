@@ -1,9 +1,9 @@
-import type { ReactNode } from "react";
+import React from "react";
 
-interface Column<T> {
+export interface Column<T> {
   header: string;
   accessor: keyof T;
-  render?: (value: T[keyof T], row: T) => ReactNode;
+  render?: (value: T[keyof T], row: T) => React.ReactNode;
 }
 
 interface Props<T> {
@@ -18,36 +18,25 @@ export default function Table<T>({
   onRowClick,
 }: Props<T>) {
   return (
-    <div
-      style={{
-        border: "1px solid #e5e7eb",
-        borderRadius: "8px",
-        overflow: "hidden",
-        backgroundColor: "#ffffff",
-      }}
-    >
+    <div style={{ width: "100%", overflowX: "auto" }}>
       <table
         style={{
           width: "100%",
           borderCollapse: "collapse",
-          fontSize: "14px",
+          minWidth: "900px",
         }}
       >
-        <thead
-          style={{
-            backgroundColor: "#f9fafb",
-            textAlign: "left",
-          }}
-        >
+        <thead>
           <tr>
-            {columns.map((col, i) => (
+            {columns.map((col) => (
               <th
-                key={i}
+                key={String(col.accessor)}
                 style={{
-                  padding: "12px 16px",
+                  textAlign: "left",
+                  padding: "14px",
                   fontWeight: 600,
-                  borderBottom: "1px solid #e5e7eb",
-                  color: "#374151",
+                  fontSize: "14px",
+                  borderBottom: "1px solid rgba(255,255,255,0.08)",
                 }}
               >
                 {col.header}
@@ -62,34 +51,33 @@ export default function Table<T>({
               key={rowIndex}
               onClick={() => onRowClick?.(row)}
               style={{
-                borderBottom: "1px solid #f3f4f6",
                 cursor: onRowClick ? "pointer" : "default",
                 transition: "background 0.15s ease",
               }}
-              onMouseEnter={(e) => {
-                if (onRowClick) {
-                  (e.currentTarget as HTMLTableRowElement).style.backgroundColor =
-                    "#f3f4f6";
-                }
-              }}
-              onMouseLeave={(e) => {
-                (e.currentTarget as HTMLTableRowElement).style.backgroundColor =
-                  "#ffffff";
-              }}
+              onMouseEnter={(e) =>
+                (e.currentTarget.style.background =
+                  "rgba(255,255,255,0.04)")
+              }
+              onMouseLeave={(e) =>
+                (e.currentTarget.style.background = "transparent")
+              }
             >
-              {columns.map((col, colIndex) => {
+              {columns.map((col) => {
                 const value = row[col.accessor];
 
                 return (
                   <td
-                    key={colIndex}
+                    key={String(col.accessor)}
                     style={{
-                      padding: "12px 16px",
-                      color: "#111827",
+                      padding: "14px",
+                      fontSize: "14px",
+                      borderBottom: "1px solid rgba(255,255,255,0.05)",
                     }}
                   >
                     {col.render
                       ? col.render(value, row)
+                      : typeof value === "object"
+                      ? JSON.stringify(value)
                       : String(value ?? "")}
                   </td>
                 );

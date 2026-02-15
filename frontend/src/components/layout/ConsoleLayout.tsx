@@ -1,23 +1,27 @@
 import { Outlet } from "react-router-dom";
+import { useState } from "react";
 import Sidebar from "./Sidebar";
 
 export default function ConsoleLayout() {
+  const [collapsed, setCollapsed] = useState(false);
+
   return (
     <div
       style={{
         display: "flex",
         height: "100vh",
-        overflow: "hidden", // prevent double scroll
+        overflow: "hidden",
+        backgroundColor: "#f8fafc",
       }}
     >
-      <Sidebar />
+      <Sidebar collapsed={collapsed} setCollapsed={setCollapsed} />
 
       <div
         style={{
           flex: 1,
           overflowY: "auto",
           padding: "32px",
-          backgroundColor: "#f9f9f9",
+          transition: "all 0.25s ease",
         }}
       >
         <div

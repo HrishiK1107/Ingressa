@@ -11,7 +11,8 @@ export default function ConsoleLayout() {
         display: "flex",
         height: "100vh",
         overflow: "hidden",
-        backgroundColor: "#f8fafc",
+        backgroundColor: "var(--bg-app)",
+        color: "var(--text-primary)",
       }}
     >
       <Sidebar collapsed={collapsed} setCollapsed={setCollapsed} />
@@ -21,7 +22,6 @@ export default function ConsoleLayout() {
           flex: 1,
           overflowY: "auto",
           padding: "32px",
-          transition: "all 0.25s ease",
         }}
       >
         <div

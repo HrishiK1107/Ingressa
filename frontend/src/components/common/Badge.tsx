@@ -4,20 +4,22 @@ interface Props {
 }
 
 export default function Badge({ label, variant }: Props) {
-  let bg = "#e5e7eb";
-  let color = "#111827";
+  let bg = "var(--bg-elevated)";
+  let color = "var(--text-primary)";
 
   if (variant === "status") {
-    if (label === "SUCCESS") bg = "#16a34a";     // green
-    else if (label === "FAILED") bg = "#dc2626"; // red
-    else if (label === "RUNNING") bg = "#f59e0b"; // amber
-    else bg = "#64748b";
-
+    if (label === "SUCCESS") bg = "var(--status-success)";
+    else if (label === "FAILED") bg = "var(--status-failed)";
+    else if (label === "RUNNING") bg = "var(--status-running)";
+    else bg = "var(--status-default)";
     color = "#ffffff";
   }
 
   if (variant === "severity") {
-    bg = "#dc2626";
+    if (label === "CRITICAL") bg = "var(--severity-critical)";
+    else if (label === "HIGH") bg = "var(--severity-high)";
+    else if (label === "MEDIUM") bg = "var(--severity-medium)";
+    else bg = "var(--severity-low)";
     color = "#ffffff";
   }
 

@@ -11,6 +11,31 @@ import Drawer from "../components/common/Drawer";
 import Badge from "../components/common/Badge";
 import { useQueryParams } from "../hooks/useQueryParams";
 
+type EventWithOptionalTime = FindingEvent & {
+  timestamp?: string | number;
+  created_at?: string | number;
+  event_time?: string | number;
+};
+
+interface AdvisorResponse {
+  summary: string;
+  risk_assessment: {
+    score: number;
+    bucket: string | null;
+    explanation: Record<string, unknown>;
+  };
+  attack_narrative: string;
+  impact: string;
+  recommended_action: string;
+  metadata: {
+    policy_id: string;
+    resource_type: string;
+    resource_id: string;
+    region: string;
+    status: string;
+  };
+}
+
 function useFindings(filters: {
   severity?: string;
   status?: string;
@@ -57,9 +82,21 @@ function useFindingEvents(id?: number) {
   });
 }
 
+function useAdvisor(id?: number) {
+  return useQuery({
+    queryKey: ["advisor", id],
+    queryFn: async (): Promise<AdvisorResponse> => {
+      const res = await api.get(`/ai/explain/${id}`);
+      return res.data;
+    },
+    enabled: !!id,
+  });
+}
+
 export default function Findings() {
   const { get, set } = useQueryParams();
   const [selectedId, setSelectedId] = useState<number | null>(null);
+  const [showAllEvents, setShowAllEvents] = useState(false);
 
   const severity = get("severity");
   const status = get("status");
@@ -77,6 +114,8 @@ export default function Findings() {
 
   const { data: detail } = useFindingDetail(selectedId || undefined);
   const { data: events } = useFindingEvents(selectedId || undefined);
+  const { data: advisor, isLoading: advisorLoading, isError: advisorError } =
+    useAdvisor(selectedId || undefined);
 
   if (isLoading) return <Loading />;
   if (isError) return <ErrorState />;
@@ -118,7 +157,6 @@ export default function Findings() {
         />
       </div>
 
-      {/* Table */}
       <Table<Finding>
         data={data}
         columns={[
@@ -143,10 +181,12 @@ export default function Findings() {
           },
           { header: "Last Seen", accessor: "last_seen" },
         ]}
-        onRowClick={(row) => setSelectedId(row.finding_id)}
+        onRowClick={(row) => {
+          setSelectedId(row.finding_id);
+          setShowAllEvents(false);
+        }}
       />
 
-      {/* Drawer */}
       <Drawer open={!!selectedId} onClose={() => setSelectedId(null)}>
         {!detail && <Loading />}
 
@@ -166,6 +206,9 @@ export default function Findings() {
                   : "#16a34a"
               }`,
               paddingLeft: "16px",
+              maxHeight: "calc(100vh - 80px)",
+              overflowY: "auto",
+              paddingRight: "12px",
             }}
           >
             {/* Header */}
@@ -179,126 +222,102 @@ export default function Findings() {
               </div>
             </div>
 
-            {/* Metadata */}
+            {/* AI ADVISOR FIRST */}
             <div
               style={{
-                display: "grid",
-                gridTemplateColumns: "120px 1fr",
-                rowGap: "10px",
-                columnGap: "12px",
-                fontSize: "14px",
+                padding: "16px",
+                border: "1px solid #e5e7eb",
+                borderRadius: 8,
+                background: "#ffffff",
               }}
             >
-              <div style={{ color: "#6b7280" }}>Risk Score</div>
-              <div>{detail.risk_score}</div>
-
-              <div style={{ color: "#6b7280" }}>Resource</div>
-              <div>
-                {detail.resource_type} / {detail.resource_id}
+              <div style={{ fontWeight: 600, marginBottom: 12 }}>
+                AI Advisor
               </div>
 
-              <div style={{ color: "#6b7280" }}>Region</div>
-              <div>{detail.region}</div>
+              {advisorLoading && <Loading />}
+              {advisorError && <div>Error loading advisor.</div>}
 
-              <div style={{ color: "#6b7280" }}>First Seen</div>
-              <div>
-                {detail.first_seen
-                  ? new Date(detail.first_seen).toLocaleString()
-                  : "—"}
-              </div>
+              {advisor && (
+                <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+                  <div>
+                    <strong>Summary:</strong>
+                    <div>{advisor.summary}</div>
+                  </div>
 
-              <div style={{ color: "#6b7280" }}>Last Seen</div>
-              <div>
-                {detail.last_seen
-                  ? new Date(detail.last_seen).toLocaleString()
-                  : "—"}
-              </div>
+                  <div>
+                    <strong>Risk Score:</strong>
+                    <div>{advisor.risk_assessment.score}</div>
+                  </div>
+
+                  <div>
+                    <strong>Attack Narrative:</strong>
+                    <div>{advisor.attack_narrative}</div>
+                  </div>
+
+                  <div>
+                    <strong>Impact:</strong>
+                    <div>{advisor.impact}</div>
+                  </div>
+
+                  <div>
+                    <strong>Recommended Action:</strong>
+                    <div>{advisor.recommended_action}</div>
+                  </div>
+                </div>
+              )}
             </div>
 
-            <div style={{ height: "1px", backgroundColor: "#e5e7eb" }} />
-
-            {/* Timeline */}
+            {/* TIMELINE BELOW */}
             <div>
-              <div
-                style={{
-                  fontSize: "16px",
-                  fontWeight: 600,
-                  marginBottom: "16px",
-                }}
-              >
+              <div style={{ fontSize: "16px", fontWeight: 600, marginBottom: "16px" }}>
                 Timeline
               </div>
 
-              {!events && <Loading />}
+              {events &&
+                (showAllEvents ? events : events.slice(0, 5)).map((e, i) => {
+                  const event = e as EventWithOptionalTime;
+                  const safeDate =
+                    event.timestamp ??
+                    event.created_at ??
+                    event.event_time;
 
-              {events && events.length === 0 && (
-                <div style={{ color: "#6b7280" }}>No events recorded.</div>
-              )}
+                  return (
+                    <div
+                      key={i}
+                      style={{
+                        marginBottom: "14px",
+                        padding: "12px",
+                        border: "1px solid #e5e7eb",
+                        borderRadius: 8,
+                        background: "#f9fafb",
+                      }}
+                    >
+                      <Badge label={e.event_type} />
+                      <div style={{ fontSize: 12, color: "#6b7280", marginTop: 4 }}>
+                        {safeDate
+                          ? new Date(safeDate).toLocaleString()
+                          : "—"}
+                      </div>
+                    </div>
+                  );
+                })}
 
-              {events && events.length > 0 && (
-                <div style={{ position: "relative", paddingLeft: "18px" }}>
-                  <div
-                    style={{
-                      position: "absolute",
-                      left: "6px",
-                      top: 0,
-                      bottom: 0,
-                      width: "2px",
-                      backgroundColor: "#e5e7eb",
-                    }}
-                  />
-
-                  <div style={{ display: "flex", flexDirection: "column", gap: "18px" }}>
-                    {events.map((e, i) => {
-                      const safeDate =
-                        (e as unknown as Record<string, unknown>).timestamp ||
-                        (e as unknown as Record<string, unknown>).created_at ||
-                        (e as unknown as Record<string, unknown>).event_time;
-
-                      return (
-                        <div
-                          key={i}
-                          style={{
-                            position: "relative",
-                            padding: "14px",
-                            border: "1px solid #e5e7eb",
-                            borderRadius: "8px",
-                            backgroundColor: "#f9fafb",
-                          }}
-                        >
-                          <div
-                            style={{
-                              position: "absolute",
-                              left: "-20px",
-                              top: "22px",
-                              width: "10px",
-                              height: "10px",
-                              backgroundColor:
-                                detail.severity === "CRITICAL"
-                                ? "#dc2626"
-                                : detail.severity === "HIGH"
-                                ? "#ea580c"
-                                : detail.severity === "MEDIUM"
-                                ? "#d97706"
-                                : "#16a34a",
-                              borderRadius: "50%",
-                            }}
-                          />
-
-                          <div style={{ marginBottom: "6px" }}>
-                            <Badge label={e.event_type} />
-                          </div>
-
-                          <div style={{ fontSize: "12px", color: "#6b7280" }}>
-                            {safeDate
-                              ? new Date(safeDate as string | number).toLocaleString()
-                              : "—"}
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
+              {events && events.length > 5 && (
+                <button
+                  onClick={() => setShowAllEvents((p) => !p)}
+                  style={{
+                    marginTop: "8px",
+                    border: "1px solid #e5e7eb",
+                    background: "#ffffff",
+                    padding: "6px 10px",
+                    borderRadius: 6,
+                    cursor: "pointer",
+                    fontSize: 12,
+                  }}
+                >
+                  {showAllEvents ? "Show Less" : `Show All (${events.length})`}
+                </button>
               )}
             </div>
           </div>

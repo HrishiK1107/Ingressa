@@ -46,7 +46,7 @@ function useBackendHealth() {
   return useQuery({
     queryKey: ["backend-health"],
     queryFn: async () => {
-      await api.get("/health"); // change if your health endpoint differs
+      await api.get("/health");
       return true;
     },
     retry: false,
@@ -82,11 +82,12 @@ export default function Sidebar({ collapsed, setCollapsed }: Props) {
       style={{
         width: collapsed ? 56 : 240,
         transition: "width 0.25s cubic-bezier(.4,0,.2,1)",
-        borderRight: "1px solid #e5e7eb",
+        borderRight: "1px solid var(--border)",
         padding: "18px 12px",
         display: "flex",
         flexDirection: "column",
-        backgroundColor: "#ffffff",
+        backgroundColor: "var(--bg-sidebar)",
+        color: "var(--text-primary)",
       }}
     >
       {/* Top Section */}
@@ -111,13 +112,13 @@ export default function Sidebar({ collapsed, setCollapsed }: Props) {
               width: 34,
               height: 34,
               borderRadius: 8,
-              border: "1px solid #e5e7eb",
-              background: "#ffffff",
+              border: "1px solid var(--border)",
+              background: "var(--bg-elevated)",
               cursor: "pointer",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              transition: "all 0.2s ease",
+              transition: "background 0.2s ease",
             }}
           >
             <ChevronIcon collapsed={collapsed} />
@@ -144,7 +145,9 @@ export default function Sidebar({ collapsed, setCollapsed }: Props) {
                 display: "flex",
                 alignItems: "center",
                 gap: 6,
-                color: backendConnected ? "#16a34a" : "#dc2626",
+                color: backendConnected
+                  ? "var(--status-success)"
+                  : "var(--status-failed)",
                 fontWeight: 500,
               }}
             >
@@ -154,8 +157,8 @@ export default function Sidebar({ collapsed, setCollapsed }: Props) {
                   height: 8,
                   borderRadius: "50%",
                   backgroundColor: backendConnected
-                    ? "#16a34a"
-                    : "#dc2626",
+                    ? "var(--status-success)"
+                    : "var(--status-failed)",
                 }}
               />
               Backend: {backendConnected ? "Connected" : "Disconnected"}
@@ -181,9 +184,11 @@ export default function Sidebar({ collapsed, setCollapsed }: Props) {
               textDecoration: "none",
               fontSize: 14,
               fontWeight: 500,
-              color: isActive ? "#111827" : "#475569",
-              backgroundColor: isActive ? "#eef2ff" : "transparent",
-              transition: "all 0.18s ease",
+              color: "var(--text-primary)",
+              backgroundColor: isActive
+                ? "var(--bg-elevated)"
+                : "transparent",
+              transition: "background 0.18s ease",
               position: "relative",
             })}
             className="sidebar-link"
@@ -202,8 +207,8 @@ export default function Sidebar({ collapsed, setCollapsed }: Props) {
             {!collapsed && item.badge !== undefined && (
               <span
                 style={{
-                  backgroundColor: "#ef4444",
-                  color: "#fff",
+                  backgroundColor: "var(--severity-critical)",
+                  color: "#ffffff",
                   fontSize: 11,
                   padding: "2px 6px",
                   borderRadius: 999,
@@ -223,7 +228,7 @@ export default function Sidebar({ collapsed, setCollapsed }: Props) {
                   width: 8,
                   height: 8,
                   borderRadius: "50%",
-                  backgroundColor: "#f59e0b",
+                  backgroundColor: "var(--status-running)",
                   animation: "pulse 1.2s infinite",
                 }}
               />
@@ -235,8 +240,7 @@ export default function Sidebar({ collapsed, setCollapsed }: Props) {
       <style>
         {`
           .sidebar-link:hover {
-            background: #f1f5f9;
-            transform: translateX(2px);
+            background: var(--bg-elevated);
           }
 
           @keyframes pulse {
@@ -250,7 +254,7 @@ export default function Sidebar({ collapsed, setCollapsed }: Props) {
   );
 }
 
-/* Icons */
+/* Icons remain unchanged */
 
 function ChevronIcon({ collapsed }: { collapsed: boolean }) {
   return (
@@ -258,7 +262,7 @@ function ChevronIcon({ collapsed }: { collapsed: boolean }) {
       width="16"
       height="16"
       fill="none"
-      stroke="#334155"
+      stroke="var(--text-secondary)"
       strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"
@@ -274,7 +278,7 @@ function ChevronIcon({ collapsed }: { collapsed: boolean }) {
 
 function GridIcon() {
   return (
-    <svg width="18" height="18" fill="none" stroke="#334155" strokeWidth="2">
+    <svg width="18" height="18" fill="none" stroke="var(--text-secondary)" strokeWidth="2">
       <rect x="3" y="3" width="5" height="5" rx="1" />
       <rect x="10" y="3" width="5" height="5" rx="1" />
       <rect x="3" y="10" width="5" height="5" rx="1" />
@@ -285,7 +289,7 @@ function GridIcon() {
 
 function ShieldIcon() {
   return (
-    <svg width="18" height="18" fill="none" stroke="#334155" strokeWidth="2">
+    <svg width="18" height="18" fill="none" stroke="var(--text-secondary)" strokeWidth="2">
       <path d="M9 2l6 3v4c0 4-3 7-6 8-3-1-6-4-6-8V5l6-3z" />
     </svg>
   );
@@ -293,7 +297,7 @@ function ShieldIcon() {
 
 function CubeIcon() {
   return (
-    <svg width="18" height="18" fill="none" stroke="#334155" strokeWidth="2">
+    <svg width="18" height="18" fill="none" stroke="var(--text-secondary)" strokeWidth="2">
       <path d="M3 7l6-4 6 4-6 4-6-4z" />
       <path d="M3 7v6l6 4 6-4V7" />
     </svg>
@@ -302,7 +306,7 @@ function CubeIcon() {
 
 function SearchIcon() {
   return (
-    <svg width="18" height="18" fill="none" stroke="#334155" strokeWidth="2">
+    <svg width="18" height="18" fill="none" stroke="var(--text-secondary)" strokeWidth="2">
       <circle cx="8" cy="8" r="5" />
       <line x1="13" y1="13" x2="17" y2="17" />
     </svg>

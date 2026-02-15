@@ -33,7 +33,8 @@ export default function Drawer({ open, onClose, children }: Props) {
         style={{
           position: "fixed",
           inset: 0,
-          backgroundColor: "rgba(0,0,0,0.35)",
+          backgroundColor: "rgba(0,0,0,0.55)",
+          backdropFilter: "blur(2px)",
           zIndex: 999,
         }}
       />
@@ -46,37 +47,39 @@ export default function Drawer({ open, onClose, children }: Props) {
           right: 0,
           width: "480px",
           height: "100vh",
-          backgroundColor: "#ffffff",
+          backgroundColor: "var(--bg-panel)",
+          color: "var(--text-primary)",
+          borderLeft: "1px solid var(--border)",
           padding: "28px",
           overflowY: "auto",
           zIndex: 1000,
-          boxShadow: "-8px 0 24px rgba(0,0,0,0.08)",
+          boxShadow: "-8px 0 32px rgba(0,0,0,0.6)",
           display: "flex",
           flexDirection: "column",
         }}
       >
-<button
-  onClick={onClose}
-  style={{
-    alignSelf: "flex-end",
-    background: "none",
-    border: "none",
-    cursor: "pointer",
-    color: "#6b7280",
-    fontSize: "13px",
-    fontWeight: 500,
-    padding: "4px 6px",
-  }}
-  onMouseEnter={(e) =>
-    (e.currentTarget.style.color = "#111827")
-  }
-  onMouseLeave={(e) =>
-    (e.currentTarget.style.color = "#6b7280")
-  }
->
-  ✕ Close
-</button>
-
+        <button
+          onClick={onClose}
+          style={{
+            alignSelf: "flex-end",
+            background: "none",
+            border: "none",
+            cursor: "pointer",
+            color: "var(--text-secondary)",
+            fontSize: "13px",
+            fontWeight: 500,
+            padding: "4px 6px",
+            transition: "color 0.2s ease",
+          }}
+          onMouseEnter={(e) =>
+            (e.currentTarget.style.color = "var(--text-primary)")
+          }
+          onMouseLeave={(e) =>
+            (e.currentTarget.style.color = "var(--text-secondary)")
+          }
+        >
+          ✕ Close
+        </button>
 
         <div style={{ marginTop: "12px" }}>{children}</div>
       </div>

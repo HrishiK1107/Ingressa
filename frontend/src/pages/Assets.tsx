@@ -68,10 +68,8 @@ export default function Assets() {
   const [typeFilter, setTypeFilter] = useState<string>("");
   const [search, setSearch] = useState<string>("");
 
-  // Build risk map
   const riskMap = useMemo(() => {
     const map: Record<string, number> = {};
-
     if (!findings) return map;
 
     findings.forEach((f) => {
@@ -83,13 +81,11 @@ export default function Assets() {
     return map;
   }, [findings]);
 
-  // Unique types for dropdown
   const uniqueTypes = useMemo(
     () => Array.from(new Set(assets?.map((a) => a.asset_type) ?? [])),
     [assets]
   );
 
-  // Filtered assets
   const filteredAssets = useMemo(() => {
     if (!assets) return [];
     return assets.filter((a) => {
@@ -107,43 +103,34 @@ export default function Assets() {
   if (!assets || assets.length === 0) return <EmptyState />;
 
   return (
-    <div style={{ padding: "24px", width: "100%" }}>
-      <h2 style={{ marginBottom: "20px", fontSize: "22px", fontWeight: 700 }}>
-        Assets
-      </h2>
+    <div className="findings-layout">
+      {/* HEADER */}
+      <div className="findings-header">
+        <h2 className="page-title">Assets</h2>
 
-      {/* Filters */}
-      <div
-        style={{
-          display: "flex",
-          gap: "12px",
-          marginBottom: "20px",
-          flexWrap: "wrap",
-        }}
-      >
-        <select
-          value={typeFilter}
-          onChange={(e) => setTypeFilter(e.target.value)}
-          style={{ padding: "6px 10px" }}
-        >
-          <option value="">All Types</option>
-          {uniqueTypes.map((type) => (
-            <option key={type} value={type}>
-              {type}
-            </option>
-          ))}
-        </select>
+        <div className="findings-filters">
+          <select
+            value={typeFilter}
+            onChange={(e) => setTypeFilter(e.target.value)}
+          >
+            <option value="">All Types</option>
+            {uniqueTypes.map((type) => (
+              <option key={type} value={type}>
+                {type}
+              </option>
+            ))}
+          </select>
 
-        <input
-          placeholder="Search by asset_id"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          style={{ padding: "6px 10px", minWidth: "200px" }}
-        />
+          <input
+            placeholder="Search by asset_id"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </div>
       </div>
 
-      {/* Table */}
-      <div style={{ overflowX: "auto" }}>
+      {/* TABLE WRAPPER */}
+      <div className="findings-table-wrapper">
         <Table<Asset>
           data={filteredAssets}
           columns={[
@@ -156,8 +143,8 @@ export default function Assets() {
                   style={{
                     backgroundColor: getAssetColor(String(value)),
                     color: "#fff",
-                    padding: "4px 10px",
-                    borderRadius: "6px",
+                    padding: "4px 12px",
+                    borderRadius: "8px",
                     fontSize: "12px",
                     fontWeight: 600,
                   }}
@@ -178,8 +165,8 @@ export default function Assets() {
                     style={{
                       backgroundColor: "#dc2626",
                       color: "#fff",
-                      padding: "3px 8px",
-                      borderRadius: "12px",
+                      padding: "4px 10px",
+                      borderRadius: "999px",
                       fontSize: "12px",
                       fontWeight: 600,
                     }}
@@ -201,76 +188,59 @@ export default function Assets() {
         />
       </div>
 
-      {/* Drawer */}
+      {/* DRAWER */}
       <Drawer open={!!selected} onClose={() => setSelected(null)}>
         {selected && (
-          <div style={{ display: "flex", flexDirection: "column", gap: "28px" }}>
-            <div>
-              <div
-                style={{
-                  fontSize: "20px",
-                  fontWeight: 700,
-                  marginBottom: "8px",
-                }}
-              >
-                {selected.asset_id}
-              </div>
+          <div className="drawer-panel">
+            <div className="drawer-header">
+              <div className="drawer-title">{selected.asset_id}</div>
 
               <span
                 style={{
                   backgroundColor: getAssetColor(selected.asset_type),
                   color: "#fff",
                   padding: "5px 12px",
-                  borderRadius: "6px",
+                  borderRadius: "8px",
                   fontSize: "12px",
                   fontWeight: 600,
+                  width: "fit-content",
                 }}
               >
                 {selected.asset_type}
               </span>
             </div>
 
-            <div style={{ height: "1px", backgroundColor: "#e5e7eb" }} />
-
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "140px 1fr",
-                rowGap: "12px",
-                columnGap: "12px",
-                fontSize: "14px",
-              }}
-            >
-              <div style={{ opacity: 0.6 }}>Region</div>
-              <div>{selected.region}</div>
-
-              <div style={{ opacity: 0.6 }}>Name</div>
-              <div>{selected.name || "—"}</div>
-            </div>
-
-            <div style={{ height: "1px", backgroundColor: "#e5e7eb" }} />
-
-            <div>
+            <div className="drawer-section">
               <div
                 style={{
-                  marginBottom: "12px",
-                  fontWeight: 600,
-                  fontSize: "15px",
+                  display: "grid",
+                  gridTemplateColumns: "140px 1fr",
+                  rowGap: "14px",
+                  columnGap: "12px",
                 }}
               >
-                Asset Data
+                <div style={{ color: "var(--text-secondary)" }}>Region</div>
+                <div>{selected.region}</div>
+
+                <div style={{ color: "var(--text-secondary)" }}>Name</div>
+                <div>{selected.name || "—"}</div>
               </div>
+            </div>
+
+            <div className="drawer-section">
+              <h4>Asset Data</h4>
 
               <pre
                 style={{
-                  backgroundColor: "#f3f4f6",
-                  padding: "16px",
-                  borderRadius: "8px",
+                  background: "rgba(255,255,255,0.04)",
+                  border: "1px solid var(--border)",
+                  borderRadius: "14px",
+                  padding: "18px",
                   overflowX: "auto",
                   fontSize: "13px",
                   lineHeight: "1.6",
-                  color: "#111827",
-                  maxHeight: "400px",
+                  color: "var(--text-primary)",
+                  maxHeight: "420px",
                 }}
               >
                 {JSON.stringify(selected.data, null, 2)}

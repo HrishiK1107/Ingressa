@@ -19,11 +19,23 @@ export default function Table<T>({
 }: Props<T>) {
   return (
     <div className="table-container">
-      <table className="app-table">
+      <table
+        className="app-table"
+        style={{
+          minWidth: "1100px",
+          tableLayout: "fixed",   // column stabilization
+          width: "100%",
+        }}
+      >
         <thead>
           <tr>
             {columns.map((col) => (
-              <th key={String(col.accessor)}>
+              <th
+                key={String(col.accessor)}
+                style={{
+                  padding: "16px 18px",
+                }}
+              >
                 {col.header}
               </th>
             ))}
@@ -41,7 +53,15 @@ export default function Table<T>({
                 const value = row[col.accessor];
 
                 return (
-                  <td key={String(col.accessor)}>
+                  <td
+                    key={String(col.accessor)}
+                    style={{
+                      padding: "16px 18px",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
                     {col.render
                       ? col.render(value, row)
                       : typeof value === "object"

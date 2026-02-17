@@ -783,3 +783,101 @@ html, body, #root {
 .assets-table-wrapper table td:nth-child(2) {
   width: 140px;
 }
+
+
+/* ============================= */
+/* SCANS PAGE – FINAL FIX        */
+/* ============================= */
+
+.scans-wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  gap: 20px;
+
+  overflow: hidden; /* 🔑 prevents body scrollbar */
+}
+
+/* Action buttons row */
+.button-row {
+  flex-shrink: 0;
+  display: flex;
+  gap: 12px;
+}
+
+/* Main card */
+.scans-wrapper .panel-card {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+
+  /* ❌ no overflow here */
+}
+
+/* REAL scroll owner */
+.scans-table-wrapper {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  background: var(--bg-panel);
+  border-radius: 16px;
+}
+
+/* ===== Dark Scrollbar (Chrome / Edge) ===== */
+
+.scans-table-wrapper::-webkit-scrollbar {
+  width: 8px;
+}
+
+.scans-table-wrapper::-webkit-scrollbar-track {
+  background: var(--bg-panel);
+}
+
+.scans-table-wrapper::-webkit-scrollbar-thumb {
+  background: #2a3442;
+  border-radius: 6px;
+}
+
+.scans-table-wrapper::-webkit-scrollbar-thumb:hover {
+  background: #3a475a;
+}
+
+/* ===== Firefox ===== */
+
+.scans-table-wrapper {
+  scrollbar-width: thin;
+  scrollbar-color: #2a3442 var(--bg-panel);
+}
+
+
+
+.modern-btn {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+  padding: 8px 16px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.modern-btn:hover {
+  border-color: var(--border-strong);
+  background: #1c2430;
+}
+
+.modern-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.scans-table-wrapper {
+  overflow-x: auto;
+  min-height: 0;
+}

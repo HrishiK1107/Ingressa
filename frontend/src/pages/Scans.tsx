@@ -68,7 +68,7 @@ export default function Scans() {
     <div className="scans-wrapper">
       <h2 className="page-title">Scans</h2>
 
-      <div className="button-row">
+      <div className="button-row" style={{ marginBottom: "20px" }}>
         <button
           className="modern-btn"
           disabled={isRunning || isMutating}
@@ -91,6 +91,7 @@ export default function Scans() {
       </div>
 
       <div className="panel-card">
+        <div className="scans-table-wrapper">
         <Table<Scan>
           data={data}
           columns={[
@@ -109,18 +110,35 @@ export default function Scans() {
               header: "Duration",
               accessor: "duration_ms",
               render: (value) => {
-                const percent =
-                  (Number(value) / maxDuration) * 100;
+                const percent = (Number(value) / maxDuration) * 100;
 
                 return (
-                  <div className="duration-container">
-                    <div className="duration-text">
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: "6px",
+                    }}
+                  >
+                    <div>
                       {value ? `${Number(value) / 1000}s` : "—"}
                     </div>
-                    <div className="duration-track">
+                    <div
+                      style={{
+                        height: "6px",
+                        background: "rgba(255,255,255,0.06)",
+                        borderRadius: "4px",
+                        overflow: "hidden",
+                      }}
+                    >
                       <div
-                        className="duration-fill"
-                        style={{ width: `${percent}%` }}
+                        style={{
+                          height: "100%",
+                          width: `${percent}%`,
+                          background:
+                            "linear-gradient(90deg,#334155,#64748b)",
+                          transition: "width 0.3s ease",
+                        }}
                       />
                     </div>
                   </div>
@@ -130,19 +148,34 @@ export default function Scans() {
           ]}
           onRowClick={(row) => setSelected(row)}
         />
+        </div>
       </div>
 
       <Drawer open={!!selected} onClose={() => setSelected(null)}>
         {selected && (
-          <div className="drawer-content">
-            <div>
-              <div className="drawer-title">
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "28px",
+            }}
+          >
+            {/* HEADER */}
+            <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+              <div
+                style={{
+                  fontSize: "20px",
+                  fontWeight: 600,
+                  wordBreak: "break-all",
+                }}
+              >
                 {selected.scan_id}
               </div>
               <Badge label={selected.status} variant="status" />
             </div>
 
-            <div className="meta-grid">
+            {/* OVERVIEW */}
+            <Section title="SCAN OVERVIEW">
               <Meta label="Mode" value={selected.mode} />
               <Meta
                 label="Started"
@@ -156,6 +189,10 @@ export default function Scans() {
                     : "—"
                 }
               />
+            </Section>
+
+            {/* METRICS */}
+            <Section title="METRICS">
               <Meta label="Assets" value={selected.asset_count} />
               <Meta label="Findings" value={selected.finding_count} />
               <Meta
@@ -166,8 +203,22 @@ export default function Scans() {
                     : "—"
                 }
               />
-              <Meta label="Error" value={selected.error_reason || "—"} />
-            </div>
+            </Section>
+
+            {/* ERROR */}
+            <Section title="ERROR">
+              <div
+                style={{
+                  padding: "12px",
+                  borderRadius: "8px",
+                  background: "rgba(255,255,255,0.04)",
+                  fontSize: "14px",
+                  wordBreak: "break-word",
+                }}
+              >
+                {selected.error_reason || "No errors reported."}
+              </div>
+            </Section>
           </div>
         )}
       </Drawer>
@@ -182,9 +233,48 @@ type MetaProps = {
 
 function Meta({ label, value }: MetaProps) {
   return (
-    <>
-      <div className="meta-label">{label}</div>
-      <div>{value}</div>
-    </>
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "space-between",
+        fontSize: "14px",
+        padding: "6px 0",
+      }}
+    >
+      <div style={{ color: "var(--text-secondary)" }}>{label}</div>
+      <div style={{ fontWeight: 500 }}>{value}</div>
+    </div>
+  );
+}
+
+function Section({
+  title,
+  children,
+}: {
+  title: string;
+  children: ReactNode;
+}) {
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+      <div
+        style={{
+          fontSize: "12px",
+          letterSpacing: "1px",
+          fontWeight: 600,
+          color: "var(--text-secondary)",
+        }}
+      >
+        {title}
+      </div>
+
+      <div
+        style={{
+          borderTop: "1px solid var(--border)",
+          paddingTop: "12px",
+        }}
+      >
+        {children}
+      </div>
+    </div>
   );
 }

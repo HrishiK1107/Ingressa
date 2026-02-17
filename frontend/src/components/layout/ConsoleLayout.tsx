@@ -1,9 +1,12 @@
-import { Outlet } from "react-router-dom";
+import { Outlet, useLocation } from "react-router-dom";
 import { useState } from "react";
 import Sidebar from "./Sidebar";
 
 export default function ConsoleLayout() {
   const [collapsed, setCollapsed] = useState(false);
+  const location = useLocation();
+
+  const isDashboard = location.pathname.includes("dashboard");
 
   return (
     <div
@@ -18,9 +21,11 @@ export default function ConsoleLayout() {
       <Sidebar collapsed={collapsed} setCollapsed={setCollapsed} />
 
       <div
+        className={`console-content ${
+          isDashboard ? "dashboard-mode" : ""
+        }`}
         style={{
           flex: 1,
-          overflowY: "auto",
           padding: "32px",
         }}
       >
@@ -28,6 +33,7 @@ export default function ConsoleLayout() {
           style={{
             maxWidth: "1200px",
             margin: "0 auto",
+            height: "100%",
           }}
         >
           <Outlet />

@@ -5,6 +5,7 @@ import { endpoints } from "../api/endpoints";
 import Loading from "../components/common/Loading";
 import ErrorState from "../components/common/ErrorState";
 import Badge from "../components/common/Badge";
+import StatCard from "../components/common/StatCard";
 
 interface Asset {
   asset_id: string;
@@ -49,10 +50,6 @@ function useScans() {
       const res = await api.get(endpoints.scans);
       return res.data.scans || [];
     },
-    refetchInterval: (query) =>
-      query.state.data?.some((s) => s.status === "RUNNING")
-        ? 2000
-        : false,
   });
 }
 
@@ -67,19 +64,18 @@ export default function Dashboard() {
   if (aE || fE || sE) return <ErrorState />;
   if (!assets || !findings || !scans) return null;
 
-  const openFindings = findings.filter(f => f.status === "OPEN");
+  const openFindings = findings.filter((f) => f.status === "OPEN");
 
-  const critical = openFindings.filter(f => f.severity === "CRITICAL").length;
-  const high = openFindings.filter(f => f.severity === "HIGH").length;
-  const medium = openFindings.filter(f => f.severity === "MEDIUM").length;
-  const low = openFindings.filter(f => f.severity === "LOW").length;
+  const critical = openFindings.filter((f) => f.severity === "CRITICAL").length;
+  const high = openFindings.filter((f) => f.severity === "HIGH").length;
+  const medium = openFindings.filter((f) => f.severity === "MEDIUM").length;
+  const low = openFindings.filter((f) => f.severity === "LOW").length;
 
   const totalAssets = assets.length;
   const openCount = openFindings.length;
 
   const riskyAssetsMap: Record<string, number> = {};
-
-  openFindings.forEach(f => {
+  openFindings.forEach((f) => {
     riskyAssetsMap[f.resource_id] =
       (riskyAssetsMap[f.resource_id] || 0) + 1;
   });
@@ -116,178 +112,108 @@ export default function Dashboard() {
       ? (weightedScore / maxPossibleScore) * 100
       : 0;
 
-  const cardStyle: React.CSSProperties = {
-    padding: "20px",
-    border: "1px solid #e5e7eb",
-    borderRadius: 8,
-    minWidth: 220,
-  };
-
-  const cardLabel: React.CSSProperties = {
-    fontSize: 14,
-    opacity: 0.6,
-    marginBottom: 6,
-  };
-
-  const cardValue: React.CSSProperties = {
-    fontSize: 26,
-    fontWeight: 700,
-  };
-
   return (
-    <div style={{ padding: 24 }}>
-      <h2 style={{ marginBottom: 24 }}>Dashboard</h2>
+    <div className="dashboard-fullscreen">
+      <h2 className="page-title">Dashboard</h2>
 
-      {/* === Stat Cards === */}
-      <div style={{ display: "flex", gap: 20, flexWrap: "wrap" }}>
-        <div style={cardStyle}>
-          <div style={cardLabel}>Total Assets</div>
-          <div style={cardValue}>{totalAssets}</div>
-        </div>
+      {/* Stats */}
+      <div className="stats-grid">
+        <StatCard label="Total Assets" value={totalAssets} />
+        <StatCard label="Open Findings" value={openCount} />
+        <StatCard label="Critical Findings" value={critical} />
+        <StatCard
+          label="Risk Index"
+          value={riskIndex}
+          progressPercent={riskPercent}
+        />
+      </div>
 
-        <div style={cardStyle}>
-          <div style={cardLabel}>Open Findings</div>
-          <div style={cardValue}>{openCount}</div>
-        </div>
-
-        <div style={cardStyle}>
-          <div style={cardLabel}>Critical Findings</div>
-          <div style={cardValue}>{critical}</div>
-        </div>
-
-        <div style={cardStyle}>
-          <div style={cardLabel}>Risk Index</div>
-          <div style={cardValue}>{riskIndex}</div>
-
-          {/* Risk Meter */}
+      {/* Severity Strip */}
+      <div className="severity-strip compact">
+        {[
+          { label: "CRITICAL", value: critical },
+          { label: "HIGH", value: high },
+          { label: "MEDIUM", value: medium },
+          { label: "LOW", value: low },
+        ].map((item) => (
           <div
-            style={{
-              height: 6,
-              marginTop: 10,
-              background: "#e5e7eb",
-              borderRadius: 4,
-              overflow: "hidden",
-            }}
+            key={item.label}
+            className={`severity-pill ${item.label.toLowerCase()}`}
+            onClick={() =>
+              navigate(`/findings?severity=${item.label}&status=OPEN`)
+            }
           >
-            <div
-              style={{
-                width: `${riskPercent}%`,
-                height: "100%",
-                background: "#ef4444",
-                transition: "width 0.3s ease",
-              }}
-            />
+            <span>{item.label}</span>
+            <strong>{item.value}</strong>
           </div>
-        </div>
+        ))}
       </div>
 
-      {/* === Severity Distribution Bar === */}
-      <div style={{ marginTop: 30 }}>
-        <div style={{ fontWeight: 600, marginBottom: 10 }}>
-          Severity Distribution
-        </div>
-
-        <div style={{ display: "flex", gap: 20 }}>
-          {[
-            { label: "CRITICAL", value: critical },
-            { label: "HIGH", value: high },
-            { label: "MEDIUM", value: medium },
-            { label: "LOW", value: low },
-          ].map(item => (
-            <div
-              key={item.label}
-              style={{ cursor: "pointer" }}
-              onClick={() =>
-                navigate(`/findings?severity=${item.label}&status=OPEN`)
-              }
-            >
-              <Badge label={item.label} variant="severity" />
-              <span style={{ marginLeft: 8 }}>{item.value}</span>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* === Exposure Summary === */}
-      <div
-        style={{
-          marginTop: 30,
-          padding: 20,
-          border: "1px solid #e5e7eb",
-          borderRadius: 8,
-        }}
-      >
-        <div style={{ fontWeight: 600, marginBottom: 10 }}>
-          Asset Exposure
-        </div>
-        <div>
-          {riskyAssetCount} / {totalAssets} assets affected
-          <span style={{ marginLeft: 12, fontWeight: 600 }}>
-            ({exposurePercent}% exposure)
-          </span>
-        </div>
-      </div>
-
-      {/* === Last Scan === */}
-      {lastScan && (
-        <div
-          style={{
-            marginTop: 30,
-            padding: 20,
-            border: "1px solid #e5e7eb",
-            borderRadius: 8,
-          }}
-        >
-          <div style={{ fontWeight: 600, marginBottom: 10 }}>
-            Last Scan
-          </div>
-
-          <div style={{ display: "flex", gap: 20, flexWrap: "wrap" }}>
-            <div>ID: {lastScan.scan_id}</div>
-            <div>
-              Status: <Badge label={lastScan.status} variant="status" />
-            </div>
-            <div>
-              Duration:{" "}
-              {lastScan.duration_ms
-                ? `${lastScan.duration_ms / 1000}s`
-                : "—"}
-            </div>
+      {/* Exposure + Last Scan */}
+      <div className="dashboard-row refined">
+        <div className="panel-card refined-panel">
+          <div className="panel-title">Asset Exposure</div>
+          <div className="exposure-main">
+            <strong>{riskyAssetCount}</strong> / {totalAssets} assets affected
+            <span className="exposure-percent">
+              {exposurePercent}% exposure
+            </span>
           </div>
         </div>
-      )}
 
-      {/* === Top Risky Assets === */}
-      <div style={{ marginTop: 30 }}>
-        <div style={{ fontWeight: 600, marginBottom: 12 }}>
-          Top Risky Assets
-        </div>
+        {lastScan && (
+          <div className="panel-card refined-panel">
+            <div className="panel-title">Last Scan</div>
 
-        <table style={{ width: "100%", borderCollapse: "collapse" }}>
-          <thead>
-            <tr style={{ textAlign: "left" }}>
-              <th style={{ padding: "8px 0" }}>Asset ID</th>
-              <th style={{ padding: "8px 0" }}>Open Findings</th>
-            </tr>
-          </thead>
-          <tbody>
-            {topRiskyAssets.map(([assetId, count]) => (
-              <tr
-                key={assetId}
-                style={{
-                  cursor: "pointer",
-                  borderTop: "1px solid #f1f5f9",
-                }}
-                onClick={() =>
-                  navigate(`/assets?q=${assetId}`)
-                }
-              >
-                <td style={{ padding: "10px 0" }}>{assetId}</td>
-                <td style={{ padding: "10px 0" }}>{count}</td>
+            <div className="scan-grid">
+              <div className="scan-block">
+                <div className="scan-label">ID</div>
+                <div className="scan-value">{lastScan.scan_id}</div>
+              </div>
+
+              <div className="scan-block">
+                <div className="scan-label">Status</div>
+                <Badge label={lastScan.status} variant="status" />
+              </div>
+
+              <div className="scan-block">
+                <div className="scan-label">Duration</div>
+                <div className="scan-value">
+                  {lastScan.duration_ms
+                    ? `${lastScan.duration_ms / 1000}s`
+                    : "—"}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Top Risky Assets */}
+      <div className="panel-card table-panel">
+        <div className="panel-title">Top Risky Assets</div>
+
+        <div className="dashboard-table-wrapper">
+          <table className="dashboard-table">
+            <thead>
+              <tr>
+                <th>Asset ID</th>
+                <th>Open Findings</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {topRiskyAssets.map(([assetId, count]) => (
+                <tr
+                  key={assetId}
+                  onClick={() => navigate(`/assets?q=${assetId}`)}
+                >
+                  <td>{assetId}</td>
+                  <td>{count}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );

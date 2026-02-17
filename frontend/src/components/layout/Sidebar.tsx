@@ -80,94 +80,56 @@ export default function Sidebar({ collapsed, setCollapsed }: Props) {
   return (
     <div
       style={{
-        width: collapsed ? 56 : 240,
+        width: collapsed ? 64 : 240,
         transition: "width 0.25s cubic-bezier(.4,0,.2,1)",
         borderRight: "1px solid var(--border)",
-        padding: "18px 12px",
+        padding: "20px 14px",
         display: "flex",
         flexDirection: "column",
-        backgroundColor: "var(--bg-sidebar)",
+        backgroundColor: "#000000", // PURE BLACK
         color: "var(--text-primary)",
       }}
     >
-      {/* Top Section */}
+      {/* HEADER ROW */}
       <div
         style={{
           display: "flex",
-          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: collapsed ? "center" : "space-between",
           marginBottom: 28,
         }}
       >
-        {/* Collapse Button */}
-        <div
-          style={{
-            display: "flex",
-            justifyContent: collapsed ? "center" : "flex-end",
-            marginBottom: collapsed ? 0 : 18,
-          }}
-        >
-          <button
-            onClick={() => setCollapsed(!collapsed)}
+        {!collapsed && (
+          <div
             style={{
-              width: 34,
-              height: 34,
-              borderRadius: 8,
-              border: "1px solid var(--border)",
-              background: "var(--bg-elevated)",
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              transition: "background 0.2s ease",
+              fontSize: 18,
+              fontWeight: 800,
+              letterSpacing: "1px",
             }}
           >
-            <ChevronIcon collapsed={collapsed} />
-          </button>
-        </div>
-
-        {/* Project Name + Backend Status */}
-        {!collapsed && (
-          <>
-            <div
-              style={{
-                fontSize: 18,
-                fontWeight: 800,
-                letterSpacing: "1px",
-              }}
-            >
-              INGRESSA
-            </div>
-
-            <div
-              style={{
-                marginTop: 6,
-                fontSize: 12,
-                display: "flex",
-                alignItems: "center",
-                gap: 6,
-                color: backendConnected
-                  ? "var(--status-success)"
-                  : "var(--status-failed)",
-                fontWeight: 500,
-              }}
-            >
-              <span
-                style={{
-                  width: 8,
-                  height: 8,
-                  borderRadius: "50%",
-                  backgroundColor: backendConnected
-                    ? "var(--status-success)"
-                    : "var(--status-failed)",
-                }}
-              />
-              Backend: {backendConnected ? "Connected" : "Disconnected"}
-            </div>
-          </>
+            INGRESSA
+          </div>
         )}
+
+        <button
+          onClick={() => setCollapsed(!collapsed)}
+          style={{
+            width: 34,
+            height: 34,
+            borderRadius: 8,
+            border: "1px solid var(--border)",
+            background: "var(--bg-elevated)",
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <ChevronIcon collapsed={collapsed} />
+        </button>
       </div>
 
-      {/* Navigation */}
+      {/* NAVIGATION */}
       <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
         {navItems.map((item) => (
           <NavLink
@@ -180,7 +142,7 @@ export default function Sidebar({ collapsed, setCollapsed }: Props) {
               justifyContent: collapsed ? "center" : "space-between",
               gap: collapsed ? 0 : 12,
               padding: "10px 12px",
-              borderRadius: 10,
+              borderRadius: 12,
               textDecoration: "none",
               fontSize: 14,
               fontWeight: 500,
@@ -191,7 +153,6 @@ export default function Sidebar({ collapsed, setCollapsed }: Props) {
               transition: "background 0.18s ease",
               position: "relative",
             })}
-            className="sidebar-link"
           >
             <div
               style={{
@@ -207,7 +168,7 @@ export default function Sidebar({ collapsed, setCollapsed }: Props) {
             {!collapsed && item.badge !== undefined && (
               <span
                 style={{
-                  backgroundColor: "var(--severity-critical)",
+                  backgroundColor: "#ef4444",
                   color: "#ffffff",
                   fontSize: 11,
                   padding: "2px 6px",
@@ -224,7 +185,7 @@ export default function Sidebar({ collapsed, setCollapsed }: Props) {
                 style={{
                   position: "absolute",
                   top: 6,
-                  right: 6,
+                  right: 8,
                   width: 8,
                   height: 8,
                   borderRadius: "50%",
@@ -237,12 +198,38 @@ export default function Sidebar({ collapsed, setCollapsed }: Props) {
         ))}
       </div>
 
+      {/* FOOTER */}
+      {!collapsed && (
+        <div
+          style={{
+            marginTop: "auto",
+            paddingTop: 16,
+            fontSize: 12,
+            display: "flex",
+            alignItems: "center",
+            gap: 6,
+            color: backendConnected
+              ? "var(--status-success)"
+              : "var(--status-failed)",
+            fontWeight: 500,
+          }}
+        >
+          <span
+            style={{
+              width: 8,
+              height: 8,
+              borderRadius: "50%",
+              backgroundColor: backendConnected
+                ? "var(--status-success)"
+                : "var(--status-failed)",
+            }}
+          />
+          Backend {backendConnected ? "Connected" : "Disconnected"}
+        </div>
+      )}
+
       <style>
         {`
-          .sidebar-link:hover {
-            background: var(--bg-elevated);
-          }
-
           @keyframes pulse {
             0% { opacity: 0.4; }
             50% { opacity: 1; }
@@ -254,7 +241,7 @@ export default function Sidebar({ collapsed, setCollapsed }: Props) {
   );
 }
 
-/* Icons remain unchanged */
+/* Icons */
 
 function ChevronIcon({ collapsed }: { collapsed: boolean }) {
   return (

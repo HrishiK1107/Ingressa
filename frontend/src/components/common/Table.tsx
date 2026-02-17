@@ -18,27 +18,12 @@ export default function Table<T>({
   onRowClick,
 }: Props<T>) {
   return (
-    <div style={{ width: "100%", overflowX: "auto" }}>
-      <table
-        style={{
-          width: "100%",
-          borderCollapse: "collapse",
-          minWidth: "900px",
-        }}
-      >
+    <div className="table-container">
+      <table className="app-table">
         <thead>
           <tr>
             {columns.map((col) => (
-              <th
-                key={String(col.accessor)}
-                style={{
-                  textAlign: "left",
-                  padding: "14px",
-                  fontWeight: 600,
-                  fontSize: "14px",
-                  borderBottom: "1px solid rgba(255,255,255,0.08)",
-                }}
-              >
+              <th key={String(col.accessor)}>
                 {col.header}
               </th>
             ))}
@@ -49,31 +34,14 @@ export default function Table<T>({
           {data.map((row, rowIndex) => (
             <tr
               key={rowIndex}
+              className={onRowClick ? "clickable-row" : ""}
               onClick={() => onRowClick?.(row)}
-              style={{
-                cursor: onRowClick ? "pointer" : "default",
-                transition: "background 0.15s ease",
-              }}
-              onMouseEnter={(e) =>
-                (e.currentTarget.style.background =
-                  "rgba(255,255,255,0.04)")
-              }
-              onMouseLeave={(e) =>
-                (e.currentTarget.style.background = "transparent")
-              }
             >
               {columns.map((col) => {
                 const value = row[col.accessor];
 
                 return (
-                  <td
-                    key={String(col.accessor)}
-                    style={{
-                      padding: "14px",
-                      fontSize: "14px",
-                      borderBottom: "1px solid rgba(255,255,255,0.05)",
-                    }}
-                  >
+                  <td key={String(col.accessor)}>
                     {col.render
                       ? col.render(value, row)
                       : typeof value === "object"

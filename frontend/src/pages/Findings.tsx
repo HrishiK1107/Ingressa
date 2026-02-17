@@ -36,6 +36,8 @@ interface AdvisorResponse {
   };
 }
 
+/* ================= Hooks ================= */
+
 function useFindings(filters: {
   severity?: string;
   status?: string;
@@ -93,6 +95,8 @@ function useAdvisor(id?: number) {
   });
 }
 
+/* ================= Component ================= */
+
 export default function Findings() {
   const { get, set } = useQueryParams();
   const [selectedId, setSelectedId] = useState<number | null>(null);
@@ -114,88 +118,95 @@ export default function Findings() {
 
   const { data: detail } = useFindingDetail(selectedId || undefined);
   const { data: events } = useFindingEvents(selectedId || undefined);
-  const { data: advisor, isLoading: advisorLoading, isError: advisorError } =
-    useAdvisor(selectedId || undefined);
+
+  const {
+    data: advisor,
+    isLoading: advisorLoading,
+    isError: advisorError,
+  } = useAdvisor(selectedId || undefined);
 
   if (isLoading) return <Loading />;
   if (isError) return <ErrorState />;
   if (!data || data.length === 0) return <EmptyState />;
 
   return (
-    <div>
-      <h2 style={{ marginBottom: "16px" }}>Findings</h2>
+    <div className="findings-layout">
+      {/* Header */}
+      <div className="findings-header">
+        <h2 className="page-title">Findings</h2>
 
-      {/* Filters */}
-      <div style={{ marginBottom: "20px", display: "flex", gap: "12px" }}>
-        <select value={severity} onChange={(e) => set("severity", e.target.value)}>
-          <option value="">All Severities</option>
-          <option value="CRITICAL">CRITICAL</option>
-          <option value="HIGH">HIGH</option>
-          <option value="MEDIUM">MEDIUM</option>
-          <option value="LOW">LOW</option>
-        </select>
+        <div className="findings-filters">
+          <select value={severity} onChange={(e) => set("severity", e.target.value)}>
+            <option value="">All Severities</option>
+            <option value="CRITICAL">CRITICAL</option>
+            <option value="HIGH">HIGH</option>
+            <option value="MEDIUM">MEDIUM</option>
+            <option value="LOW">LOW</option>
+          </select>
 
-        <select value={status} onChange={(e) => set("status", e.target.value)}>
-          <option value="">All Status</option>
-          <option value="OPEN">OPEN</option>
-          <option value="RESOLVED">RESOLVED</option>
-        </select>
+          <select value={status} onChange={(e) => set("status", e.target.value)}>
+            <option value="">All Status</option>
+            <option value="OPEN">OPEN</option>
+            <option value="RESOLVED">RESOLVED</option>
+          </select>
 
-        <input
-          placeholder="Search resource_id"
-          value={q}
-          onChange={(e) => set("q", e.target.value)}
-        />
+          <input
+            placeholder="Search resource_id"
+            value={q}
+            onChange={(e) => set("q", e.target.value)}
+          />
 
-        <input
-          type="number"
-          min="1"
-          max="500"
-          value={limit}
-          onChange={(e) => set("limit", e.target.value)}
-          style={{ width: "90px" }}
+          <input
+            type="number"
+            min="1"
+            max="500"
+            value={limit}
+            onChange={(e) => set("limit", e.target.value)}
+          />
+        </div>
+      </div>
+
+      {/* Table */}
+      <div className="findings-table-wrapper">
+        <Table<Finding>
+          data={data}
+          columns={[
+            {
+              header: "Severity",
+              accessor: "severity",
+              render: (value) => (
+                <Badge label={String(value)} variant="severity" />
+              ),
+            },
+            { header: "Risk", accessor: "risk_score" },
+            { header: "Policy", accessor: "policy_id" },
+            { header: "Resource Type", accessor: "resource_type" },
+            { header: "Resource ID", accessor: "resource_id" },
+            { header: "Region", accessor: "region" },
+            {
+              header: "Status",
+              accessor: "status",
+              render: (value) => (
+                <Badge label={String(value)} variant="status" />
+              ),
+            },
+            { header: "Last Seen", accessor: "last_seen" },
+          ]}
+          onRowClick={(row) => {
+            setSelectedId(row.finding_id);
+            setShowAllEvents(false);
+          }}
         />
       </div>
 
-      <Table<Finding>
-        data={data}
-        columns={[
-          {
-            header: "Severity",
-            accessor: "severity",
-            render: (value) => (
-              <Badge label={String(value)} variant="severity" />
-            ),
-          },
-          { header: "Risk", accessor: "risk_score" },
-          { header: "Policy", accessor: "policy_id" },
-          { header: "Resource Type", accessor: "resource_type" },
-          { header: "Resource ID", accessor: "resource_id" },
-          { header: "Region", accessor: "region" },
-          {
-            header: "Status",
-            accessor: "status",
-            render: (value) => (
-              <Badge label={String(value)} variant="status" />
-            ),
-          },
-          { header: "Last Seen", accessor: "last_seen" },
-        ]}
-        onRowClick={(row) => {
-          setSelectedId(row.finding_id);
-          setShowAllEvents(false);
-        }}
-      />
-
+      {/* Drawer */}
       <Drawer open={!!selectedId} onClose={() => setSelectedId(null)}>
         {!detail && <Loading />}
 
         {detail && (
           <div
+            className="drawer-panel"
             style={{
-              display: "flex",
-              flexDirection: "column",
-              gap: "28px",
               borderLeft: `4px solid ${
                 detail.severity === "CRITICAL"
                   ? "#dc2626"
@@ -206,73 +217,38 @@ export default function Findings() {
                   : "#16a34a"
               }`,
               paddingLeft: "16px",
-              maxHeight: "calc(100vh - 80px)",
-              overflowY: "auto",
-              paddingRight: "12px",
             }}
           >
             {/* Header */}
-            <div>
-              <div style={{ fontSize: "20px", fontWeight: 600 }}>
-                {detail.policy_id}
-              </div>
-              <div style={{ display: "flex", gap: "10px", marginTop: "8px" }}>
+            <div className="drawer-header">
+              <div className="drawer-title">{detail.policy_id}</div>
+              <div style={{ display: "flex", gap: "8px" }}>
                 <Badge label={detail.severity} variant="severity" />
                 <Badge label={detail.status} variant="status" />
               </div>
             </div>
 
-            {/* AI ADVISOR FIRST */}
-            <div
-              style={{
-                padding: "16px",
-                border: "1px solid #e5e7eb",
-                borderRadius: 8,
-                background: "#ffffff",
-              }}
-            >
-              <div style={{ fontWeight: 600, marginBottom: 12 }}>
-                AI Advisor
-              </div>
+            {/* AI Advisor */}
+            <div className="drawer-section">
+              <h4>AI Advisor</h4>
 
               {advisorLoading && <Loading />}
               {advisorError && <div>Error loading advisor.</div>}
 
               {advisor && (
-                <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-                  <div>
-                    <strong>Summary:</strong>
-                    <div>{advisor.summary}</div>
-                  </div>
-
-                  <div>
-                    <strong>Risk Score:</strong>
-                    <div>{advisor.risk_assessment.score}</div>
-                  </div>
-
-                  <div>
-                    <strong>Attack Narrative:</strong>
-                    <div>{advisor.attack_narrative}</div>
-                  </div>
-
-                  <div>
-                    <strong>Impact:</strong>
-                    <div>{advisor.impact}</div>
-                  </div>
-
-                  <div>
-                    <strong>Recommended Action:</strong>
-                    <div>{advisor.recommended_action}</div>
-                  </div>
-                </div>
+                <>
+                  <div><strong>Summary:</strong><div>{advisor.summary}</div></div>
+                  <div><strong>Risk Score:</strong><div>{advisor.risk_assessment.score}</div></div>
+                  <div><strong>Attack Narrative:</strong><div>{advisor.attack_narrative}</div></div>
+                  <div><strong>Impact:</strong><div>{advisor.impact}</div></div>
+                  <div><strong>Recommended Action:</strong><div>{advisor.recommended_action}</div></div>
+                </>
               )}
             </div>
 
-            {/* TIMELINE BELOW */}
-            <div>
-              <div style={{ fontSize: "16px", fontWeight: 600, marginBottom: "16px" }}>
-                Timeline
-              </div>
+            {/* Timeline */}
+            <div className="drawer-section">
+              <h4>Timeline</h4>
 
               {events &&
                 (showAllEvents ? events : events.slice(0, 5)).map((e, i) => {
@@ -283,18 +259,9 @@ export default function Findings() {
                     event.event_time;
 
                   return (
-                    <div
-                      key={i}
-                      style={{
-                        marginBottom: "14px",
-                        padding: "12px",
-                        border: "1px solid #e5e7eb",
-                        borderRadius: 8,
-                        background: "#f9fafb",
-                      }}
-                    >
+                    <div key={i} className="timeline-item">
                       <Badge label={e.event_type} />
-                      <div style={{ fontSize: 12, color: "#6b7280", marginTop: 4 }}>
+                      <div style={{ fontSize: 12, marginTop: 4 }}>
                         {safeDate
                           ? new Date(safeDate).toLocaleString()
                           : "—"}
@@ -307,13 +274,14 @@ export default function Findings() {
                 <button
                   onClick={() => setShowAllEvents((p) => !p)}
                   style={{
-                    marginTop: "8px",
-                    border: "1px solid #e5e7eb",
-                    background: "#ffffff",
-                    padding: "6px 10px",
-                    borderRadius: 6,
+                    marginTop: "10px",
+                    background: "var(--bg-elevated)",
+                    border: "1px solid var(--border)",
+                    color: "var(--text-primary)",
+                    padding: "6px 12px",
+                    borderRadius: "8px",
                     cursor: "pointer",
-                    fontSize: 12,
+                    fontSize: "12px",
                   }}
                 >
                   {showAllEvents ? "Show Less" : `Show All (${events.length})`}

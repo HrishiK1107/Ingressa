@@ -80,13 +80,13 @@ export default function Sidebar({ collapsed, setCollapsed }: Props) {
   return (
     <div
       style={{
-        width: collapsed ? 64 : 240,
+        width: collapsed ? 55 : 240,
         transition: "width 0.25s cubic-bezier(.4,0,.2,1)",
         borderRight: "1px solid var(--border)",
         padding: "20px 14px",
         display: "flex",
         flexDirection: "column",
-        backgroundColor: "#000000", // PURE BLACK
+        backgroundColor: "var(--bg-sidebar)", // PURE BLACK
         color: "var(--text-primary)",
       }}
     >
@@ -102,9 +102,9 @@ export default function Sidebar({ collapsed, setCollapsed }: Props) {
         {!collapsed && (
           <div
             style={{
-              fontSize: 18,
+              fontSize: 20,
               fontWeight: 800,
-              letterSpacing: "1px",
+              letterSpacing: "1.5px",
             }}
           >
             INGRESSA
@@ -141,10 +141,10 @@ export default function Sidebar({ collapsed, setCollapsed }: Props) {
               alignItems: "center",
               justifyContent: collapsed ? "center" : "space-between",
               gap: collapsed ? 0 : 12,
-              padding: "10px 12px",
+              padding: "14px 16px",
               borderRadius: 12,
               textDecoration: "none",
-              fontSize: 14,
+              fontSize: 18,
               fontWeight: 500,
               color: "var(--text-primary)",
               backgroundColor: isActive
@@ -265,7 +265,7 @@ function ChevronIcon({ collapsed }: { collapsed: boolean }) {
 
 function GridIcon() {
   return (
-    <svg width="18" height="18" fill="none" stroke="var(--text-secondary)" strokeWidth="2">
+    <svg width="20" height="20" fill="none" stroke="var(--text-secondary)" strokeWidth="2">
       <rect x="3" y="3" width="5" height="5" rx="1" />
       <rect x="10" y="3" width="5" height="5" rx="1" />
       <rect x="3" y="10" width="5" height="5" rx="1" />

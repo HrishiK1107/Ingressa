@@ -112,23 +112,59 @@ export default function Dashboard() {
       ? (weightedScore / maxPossibleScore) * 100
       : 0;
 
+  // purely visual demo delta
+  const riskDelta = 0.18;
+
+  // risk classification (visual only)
+  const riskLevel =
+    riskPercent > 70
+      ? "CRITICAL"
+      : riskPercent > 40
+      ? "ELEVATED"
+      : "LOW";
+
   return (
     <div className="dashboard-fullscreen">
-      <h2 className="page-title">Dashboard</h2>
+      <div className="dashboard-header">
+        <h2 className="page-title">Dashboard</h2>
+        <div className="data-freshness">
+          Updated just now
+        </div>
+      </div>
 
-      {/* Stats */}
       <div className="stats-grid">
         <StatCard label="Total Assets" value={totalAssets} />
-        <StatCard label="Open Findings" value={openCount} />
+
+        <StatCard
+          label="Open Findings"
+          value={openCount}
+          className="primary"
+        />
+
         <StatCard label="Critical Findings" value={critical} />
+
         <StatCard
           label="Risk Index"
           value={riskIndex}
           progressPercent={riskPercent}
-        />
+        >
+          <div className="risk-meta">
+            <span className={`risk-level ${riskLevel.toLowerCase()}`}>
+              {riskLevel}
+            </span>
+
+            <span
+              className={`risk-delta ${
+                riskDelta >= 0 ? "negative" : "positive"
+              }`}
+            >
+              {riskDelta >= 0 ? "+" : ""}
+              {riskDelta.toFixed(2)} vs previous scan
+            </span>
+          </div>
+        </StatCard>
       </div>
 
-      {/* Severity Strip */}
       <div className="severity-strip compact">
         {[
           { label: "CRITICAL", value: critical },
@@ -149,7 +185,6 @@ export default function Dashboard() {
         ))}
       </div>
 
-      {/* Exposure + Last Scan */}
       <div className="dashboard-row refined">
         <div className="panel-card refined-panel">
           <div className="panel-title">Asset Exposure</div>
@@ -166,17 +201,17 @@ export default function Dashboard() {
             <div className="panel-title">Last Scan</div>
 
             <div className="scan-grid">
-              <div className="scan-block">
+              <div>
                 <div className="scan-label">ID</div>
                 <div className="scan-value">{lastScan.scan_id}</div>
               </div>
 
-              <div className="scan-block">
+              <div>
                 <div className="scan-label">Status</div>
                 <Badge label={lastScan.status} variant="status" />
               </div>
 
-              <div className="scan-block">
+              <div>
                 <div className="scan-label">Duration</div>
                 <div className="scan-value">
                   {lastScan.duration_ms
@@ -189,7 +224,6 @@ export default function Dashboard() {
         )}
       </div>
 
-      {/* Top Risky Assets */}
       <div className="panel-card table-panel">
         <div className="panel-title">Top Risky Assets</div>
 
@@ -208,7 +242,11 @@ export default function Dashboard() {
                   onClick={() => navigate(`/assets?q=${assetId}`)}
                 >
                   <td>{assetId}</td>
-                  <td>{count}</td>
+                  <td>
+                    <span className="finding-count">
+                      {count}
+                    </span>
+                  </td>
                 </tr>
               ))}
             </tbody>

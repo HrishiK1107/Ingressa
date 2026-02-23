@@ -1,3 +1,4 @@
+
 services:
   db:
     image: postgres:16-alpine
@@ -7,10 +8,32 @@ services:
       POSTGRES_DB: ingressa
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-    ports:
-      - "5432:5432"
     volumes:
       - ingressa_pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  backend:
+    build:
+      context: ./backend
+    container_name: ingressa-backend
+    restart: unless-stopped
+    depends_on:
+      - db
+    env_file:
+      - ./backend/.env
+    ports:
+      - "8000:8000"
+
+  frontend:
+    build:
+      context: ./frontend
+    container_name: ingressa-frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "5173:80"
 
 volumes:
   ingressa_pgdata:
